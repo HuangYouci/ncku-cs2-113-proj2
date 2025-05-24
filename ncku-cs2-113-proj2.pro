@@ -9,11 +9,26 @@ CONFIG += c++11
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    src/elements/ClickableButton.cpp \
     src/main.cpp \
-    src/GameWindow.cpp
+    src/GameWindow.cpp \
+    src/objects/FxBrick.cpp \
+    src/objects/InBrick.cpp \
+    src/objects/MaBrick.cpp \
+    src/objects/Player.cpp \
+    src/scenes/GameMRScene.cpp \
+    src/scenes/TitleScene.cpp
 
 HEADERS += \
-    src/GameWindow.h
+    src/GameWindow.h \
+    src/core/enums.h \
+    src/elements/ClickableButton.h \
+    src/objects/FxBrick.h \
+    src/objects/InBrick.h \
+    src/objects/MaBrick.h \
+    src/objects/Player.h \
+    src/scenes/GameMRScene.h \
+    src/scenes/TitleScene.h
 
 FORMS +=
 

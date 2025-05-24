@@ -1,28 +1,12 @@
 <RCC>
-    <qresource prefix="/data">
+    <qresource prefix="/">
         <file>data/water_ballon.png</file>
-    </qresource>
-    <qresource prefix="/data/brick">
-        <file>data/brick/movable_destructible.png</file>
-        <file>data/brick/statue_2.png</file>
-        <file>data/brick/statue_1.png</file>
-        <file>data/brick/indestructible_brick_green.png</file>
-        <file>data/brick/indestructible_brick_blue.png</file>
-        <file>data/brick/floor.png</file>
-        <file>data/brick/destructible_fixed_brick.png</file>
-    </qresource>
-    <qresource prefix="/data/ui">
-        <file>data/ui/home.png</file>
         <file>data/ui/ui.png</file>
+        <file>data/ui/startpage.jpg</file>
         <file>data/ui/pause.png</file>
-    </qresource>
-    <qresource prefix="/data/character">
-        <file>data/character/robot.png</file>
-        <file>data/character/palyer.png</file>
-        <file>data/character/octupus.png</file>
-        <file>data/character/monster.png</file>
-    </qresource>
-    <qresource prefix="/data/item">
+        <file>data/ui/home.png</file>
+        <file>data/maps/testmap2.txt</file>
+        <file>data/maps/testmap.txt</file>
         <file>data/item/turtle.png</file>
         <file>data/item/speed_shoes.png</file>
         <file>data/item/power_potion.png</file>
@@ -30,9 +14,16 @@
         <file>data/item/moon_walk.png</file>
         <file>data/item/glove.png</file>
         <file>data/item/extra_water_balloons.png</file>
-    </qresource>
-    <qresource prefix="/data/maps">
-        <file>data/maps/testmap.txt</file>
-        <file>data/maps/testmap2.txt</file>
+        <file>data/character/robot.png</file>
+        <file>data/character/palyer.png</file>
+        <file>data/character/octupus.png</file>
+        <file>data/character/monster.png</file>
+        <file>data/brick/statue_2.png</file>
+        <file>data/brick/statue_1.png</file>
+        <file>data/brick/movable_destructible.png</file>
+        <file>data/brick/indestructible_brick_green.png</file>
+        <file>data/brick/indestructible_brick_blue.png</file>
+        <file>data/brick/floor.png</file>
+        <file>data/brick/destructible_fixed_brick.png</file>
     </qresource>
 </RCC>

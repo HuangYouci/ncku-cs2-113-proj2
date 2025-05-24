@@ -4,6 +4,13 @@
 #include <QMainWindow>
 #include <QGraphicsView>
 
+// Scenes
+#include "src/scenes/TitleScene.h"
+#include "src/scenes/GameMRScene.h"
+
+// Core
+#include "src/core/enums.h"
+
 class GameWindow : public QMainWindow {
     Q_OBJECT
 
@@ -12,8 +19,21 @@ public:
     GameWindow(QWidget *parent = nullptr);
     ~GameWindow();
 
+private slots:
+    // 場景切換曹函數
+    void handleSwitchScene(sceneslist to);
+
+    // 退出程式曹函數
+    void handleQuitRequest();
+
 private:
+    // Main View
     QGraphicsView *view;
+
+    // Scenes
+    sceneslist currentScene = sceneslist::title;
+    TitleScene *title = nullptr;
+    GameMRScene *gameMR = nullptr;
 };
 
 #endif
