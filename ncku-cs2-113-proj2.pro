@@ -16,6 +16,8 @@ SOURCES += \
     src/objects/InBrick.cpp \
     src/objects/MaBrick.cpp \
     src/objects/Player.cpp \
+    src/objects/WaterBalloon.cpp \
+    src/objects/WaterExplosion.cpp \
     src/scenes/GameMRScene.cpp \
     src/scenes/TitleScene.cpp
 
@@ -27,6 +29,8 @@ HEADERS += \
     src/objects/InBrick.h \
     src/objects/MaBrick.h \
     src/objects/Player.h \
+    src/objects/WaterBalloon.h \
+    src/objects/WaterExplosion.h \
     src/scenes/GameMRScene.h \
     src/scenes/TitleScene.h
 
