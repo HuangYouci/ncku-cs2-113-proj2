@@ -8,6 +8,7 @@
 #include <QStringList>       // 拆輸入字串
 #include <QRandomGenerator>  // 亂數
 #include <QList>             // 碰撞檢查
+#include <QGraphicsRectItem>
 
 GameMRScene::GameMRScene(QObject *parent)
 {
@@ -60,6 +61,118 @@ void GameMRScene::setup(){
     QGraphicsPixmapItem *menu = new QGraphicsPixmapItem(QPixmap(":/data/ui/ui.png").scaled(550, 100));
     menu->setPos(0, 450);
     addItem(menu);
+
+    qDebug() << "[GameMRScene] 正在建立顯示物品中心";
+    QGraphicsRectItem *br = new QGraphicsRectItem(300, 450, 250, 95);
+    br->setBrush(Qt::blue);
+    addItem(br);
+
+    qDebug() << "[GameMRScene] 正在建立各種物體數量顯示";
+    {
+        QGraphicsPixmapItem *pi = new QGraphicsPixmapItem();
+        pi->setPixmap(QPixmap(":/data/item/extra_water_balloons.png").scaled(30, 30));
+        pi->setPos(310, 450);
+        addItem(pi);
+        QGraphicsTextItem *ti = new QGraphicsTextItem("水球      /5");
+        ti->setFont(QFont("Arial", 15));
+        ti->setDefaultTextColor(Qt::white);
+        ti->setPos(340, 450);
+        addItem(ti);
+        textWater = new QGraphicsTextItem("1");
+        textWater->setFont(QFont("Arial", 20));
+        textWater->setPos(380, 450);
+        addItem(textWater);
+    }
+    {
+        QGraphicsPixmapItem *pi = new QGraphicsPixmapItem();
+        pi->setPixmap(QPixmap(":/data/item/power_potion.png").scaled(30, 30));
+        pi->setPos(310, 480);
+        addItem(pi);
+        QGraphicsTextItem *ti = new QGraphicsTextItem("威力      /5");
+        ti->setFont(QFont("Arial", 15));
+        ti->setDefaultTextColor(Qt::white);
+        ti->setPos(340, 480);
+        addItem(ti);
+        textPower = new QGraphicsTextItem("1");
+        textPower->setFont(QFont("Arial", 20));
+        textPower->setPos(380, 480);
+        addItem(textPower);
+    }
+    {
+        QGraphicsPixmapItem *pi = new QGraphicsPixmapItem();
+        pi->setPixmap(QPixmap(":/data/item/speed_shoes.png").scaled(30, 30));
+        pi->setPos(310, 510);
+        addItem(pi);
+        QGraphicsTextItem *ti = new QGraphicsTextItem("加速");
+        ti->setFont(QFont("Arial", 15));
+        ti->setDefaultTextColor(Qt::white);
+        ti->setPos(340, 510);
+        addItem(ti);
+        textSpeed = new QGraphicsTextItem("無");
+        textSpeed->setFont(QFont("Arial", 20));
+        textSpeed->setPos(380, 510);
+        addItem(textSpeed);
+    }
+    {
+        QGraphicsPixmapItem *pi = new QGraphicsPixmapItem();
+        pi->setPixmap(QPixmap(":/data/item/turtle.png").scaled(30, 30));
+        pi->setPos(420, 450);
+        addItem(pi);
+        QGraphicsTextItem *ti = new QGraphicsTextItem("烏龜");
+        ti->setFont(QFont("Arial", 15));
+        ti->setDefaultTextColor(Qt::white);
+        ti->setPos(450, 450);
+        addItem(ti);
+        textTurtle = new QGraphicsTextItem("無");
+        textTurtle->setFont(QFont("Arial", 20));
+        textTurtle->setPos(490, 450);
+        addItem(textTurtle);
+    }
+    {
+        QGraphicsPixmapItem *pi = new QGraphicsPixmapItem();
+        pi->setPixmap(QPixmap(":/data/item/needle.png").scaled(30, 30));
+        pi->setPos(420, 480);
+        addItem(pi);
+        QGraphicsTextItem *ti = new QGraphicsTextItem("針");
+        ti->setFont(QFont("Arial", 15));
+        ti->setDefaultTextColor(Qt::white);
+        ti->setPos(450, 480);
+        addItem(ti);
+        textNeedle = new QGraphicsTextItem("無");
+        textNeedle->setFont(QFont("Arial", 20));
+        textNeedle->setPos(490, 480);
+        addItem(textNeedle);
+    }
+    {
+        QGraphicsPixmapItem *pi = new QGraphicsPixmapItem();
+        pi->setPixmap(QPixmap(":/data/item/glove.png").scaled(30, 30));
+        pi->setPos(420, 510);
+        addItem(pi);
+        QGraphicsTextItem *ti = new QGraphicsTextItem("手套");
+        ti->setFont(QFont("Arial", 15));
+        ti->setDefaultTextColor(Qt::white);
+        ti->setPos(450, 510);
+        addItem(ti);
+        textGlove = new QGraphicsTextItem("無");
+        textGlove->setFont(QFont("Arial", 20));
+        textGlove->setPos(490, 510);
+        addItem(textGlove);
+    }
+    {
+        QGraphicsPixmapItem *pi = new QGraphicsPixmapItem();
+        pi->setPixmap(QPixmap(":/data/item/moon_walk.png").scaled(30, 30));
+        pi->setPos(160, 450);
+        addItem(pi);
+        QGraphicsTextItem *ti = new QGraphicsTextItem("月亮走");
+        ti->setFont(QFont("Arial", 15));
+        ti->setDefaultTextColor(Qt::white);
+        ti->setPos(190, 450);
+        addItem(ti);
+        textMoon = new QGraphicsTextItem("無");
+        textMoon->setFont(QFont("Arial", 20));
+        textMoon->setPos(260, 450);
+        addItem(textMoon);
+    }
 
     // MARK: - 設定地圖
     // 設定地圖座標組（用於放置位置）
@@ -115,6 +228,7 @@ void GameMRScene::setup(){
             // 地板｜地板都會建立
             QGraphicsPixmapItem *floor = new QGraphicsPixmapItem(QPixmap(":/data/brick/floor.png").scaled(50, 50, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
             floor->setPos(col * 50, row * 50);  // col 是 x, row 是 y
+            floor->setZValue(-1);
             addItem(floor);
 
             // 依照地圖元素建立
@@ -158,7 +272,7 @@ void GameMRScene::setup(){
             if (val == 4){
                 // 設定玩家起始位置
                 pX = col*50;
-                pY = row*50;
+                pY = row*50 - 6;
                 player->setPos(pX, pY);
                 qDebug() << "[GameMRScene] 玩家生成於 (" << row*50 << "," << col*50 << ")";
                 break;
@@ -180,16 +294,16 @@ void GameMRScene::movingPlayer(direction dir){
     int dX = 0, dY = 0;
     switch(dir){
     case direction::up:
-        dY = -10;
+        dY = -50;
         break;
     case direction::dw:
-        dY = 10;
+        dY = 50;
         break;
     case direction::lf:
-        dX = -10;
+        dX = -50;
         break;
     case direction::rg:
-        dX = 10;
+        dX = 50;
         break;
     }
 
@@ -198,13 +312,13 @@ void GameMRScene::movingPlayer(direction dir){
     int nextY = pY + dY;
 
     // 1. 邊界檢查
-    if (nextX > 500 || nextX < 0 || nextY > 400 || nextY < 0){
+    if ((nextX > 500) || (nextX < 0) || (nextY > 400) || (nextY < -10)){
         qDebug() << "[GameMRScene] Player 無法走路，移動 (" << dX << "," << dY << ") 後為 (" << pX << "," << pY << ") 將超過邊界";
         return;
     }
 
     // 2. 碰撞檢查
-    QRectF nextRect(nextX, nextY+10, 45, 45); // 應該為 56, 50 但弄小塊一點
+    QRectF nextRect(nextX, nextY+10, 35, 35); // 應該為 56, 50 但弄小塊一點
     QList<QGraphicsItem *> itemAtNext = items(nextRect); // 用 items 查看下一個位置有哪些區塊
     for (QGraphicsItem *item : itemAtNext) {
         // 檢查有無碰撞到以下方塊，確認要阻止或進行功能
@@ -238,14 +352,25 @@ void GameMRScene::movingPlayer(direction dir){
         }
     }
 
-    // 將移動距離加入待處理
-    ipX = dX;
-    ipY = dY;
-    qDebug() << "[GameMRScene] 玩家成功觸發走路，將 (" << ipX << "," << ipY << ") 加入待處理序列";
-    qDebug() << "[GameMRScene] Player | (" << ipX << "," << ipY << ")";
+    // 將移動距離加入待處理（如果還可以走的話）
+    if(ipX+ipY == 0){
+        ipX = dX;
+        ipY = dY;
+        qDebug() << "[GameMRScene] 玩家成功觸發走路，將 (" << ipX << "," << ipY << ") 加入待處理序列";
+        qDebug() << "[GameMRScene] Player | (" << ipX << "," << ipY << ")";
+    } else {
+        qDebug() << "[GameMRScene] 移動尚在冷卻期，忽略";
+        return;
+    }
 }
 
 void GameMRScene::movingMaBrick(direction way, MaBrick *mb){
+
+    // 0. 如果玩家還在走路，就不要推
+    if (ipX + ipY > 0){
+        qDebug() << "[GameMRScene] 玩家仍在走路，跳過推動";
+        return;
+    }
 
     int dX = 0;
     int dY = 0;
@@ -275,7 +400,7 @@ void GameMRScene::movingMaBrick(direction way, MaBrick *mb){
     qDebug() << "[GameMRScene] MaBrick 目前在 (" << pX << "," << pY << ")。嘗試將他走 (" << dX << "," << dY << ")";
 
     // 1. 邊界檢查
-    if (nextX > 500 || nextX < 0 || nextY > 400 || nextY < 0){
+    if ((nextX > 500) || (nextX < 0) || (nextY > 400) || (nextY < 0)){
         qDebug() << "[GameMRScene] MaBrick 無法移動，移動 (" << dX << "," << dY << ") 後為 (" << pX << "," << pY << ") 將超過邊界";
         return;
     }
@@ -294,9 +419,13 @@ void GameMRScene::movingMaBrick(direction way, MaBrick *mb){
     }
 
     // 移動成功（加入 mb 佇列，在 tick 執行）
-    mb->ipX = dX;
-    mb->ipY = dY;
-    qDebug() << "[GameMRScene] 成功處理 MaBrick 移動，移動 (" << mb->ipX << "," << mb->ipY << ") 已加入佇列";
+    if(mb->ipX + mb->ipY == 0){
+        mb->ipX = dX;
+        mb->ipY = dY;
+        qDebug() << "[GameMRScene] 成功處理 MaBrick 移動，移動 (" << mb->ipX << "," << mb->ipY << ") 已加入佇列";
+    } else {
+        qDebug() << "[GameMRScene] 處理 MaBrick 失敗，因為仍有佇列";
+    }
 }
 
 
@@ -330,16 +459,20 @@ void GameMRScene::puttingWaterballoon(int cellX, int cellY){
 }
 
 void GameMRScene::waterballoonExplosion(WaterBalloon *wb){
-    // 場上水球減少
+    // 1. 場上水球減少
     waterballCurCount--;
     qDebug() << "[GameMRScene] 有水球爆炸，場上 Player 水球剩餘" << waterballCurCount << "/" << waterballMaxCount;
 
-    // 紀錄爆炸座標
+    // 2. 紀錄爆炸座標
     int cellX = wb->pos().x()/50, cellY = wb->pos().y()/50;
     qDebug() << "[GameMRScene] 該水球爆炸於 (" << cellX+1 << "," << cellY+1 << ")";
 
-    // 四方位爆炸範圍檢測
-    // cellX*50, cellY*50, 50, 50 檢測
+    // 3. 正忠方位爆炸（放在正中間，無需檢測）
+    WaterExplosion *we = new WaterExplosion(nullptr, WaterExplosion::WaterExplosionDirection::ce);
+    addItem(we);
+    we->setPos(cellX*50, cellY*50);
+
+    // 4. 四方位爆炸，包含檢測：cellX*50, cellY*50, 50, 50 檢測
     QVector<QPoint> checklist;
     for(int i = 1 ; i <= waterballPower ; i++ ){
         checklist.append(QPoint(-i+cellX, cellY)); // 左
@@ -354,15 +487,15 @@ void GameMRScene::waterballoonExplosion(WaterBalloon *wb){
     bool passColup = true;
     bool passColdw = true;
     for (QPoint &pt : checklist){
-        // 是否通過碰撞檢測 以及扣除放置個數
+        // 4-1. 是否通過碰撞檢測 以及扣除放置個數
         bool passCol = true;
         putcount--;
-        // 1. 邊界檢測
-        if ( (pt.x()+1 > 10) || (pt.x()+1 < 0) || (pt.y()+1 > 9) || (pt.y()+1 < 0) ){
+        // 4-2. 邊界檢測
+        if ( (pt.x()+1 > 11) || (pt.x()+1 < 0) || (pt.y()+1 > 9) || (pt.y()+1 < 0) ){
             qDebug() << "[GameMRScene] 在 (" << cellX+1 << "," << cellY+1 << ") 的水球爆炸波超過邊界，不放置";
             continue;
         }
-        // 2. 碰撞檢測，每筆獨立
+        // 4-3. 碰撞檢測，每筆獨立
         QRectF nextRect(pt.x() *50, pt.y() *50, 50, 50);
         QList<QGraphicsItem *> itemAtNext = items(nextRect);
         for (QGraphicsItem *item : itemAtNext){
@@ -377,30 +510,69 @@ void GameMRScene::waterballoonExplosion(WaterBalloon *wb){
                wb->boomgatime = 30;
            }
         }
-        // 3. 如果碰撞檢測失敗，就跳過這個座標，順便禁止該方向之後的所有爆炸
+        // 4-4. 如果碰撞檢測失敗，就跳過這個座標，順便禁止該方向之後的所有爆炸
         if (!passCol){
+            QRect prevRect;
+            QList<QGraphicsItem *> prevList;
             switch(putcount%4){
             case 3: //left
                 qDebug() << "[GameMRScene] 左爆炸已被禁止";
                 passCollf = false;
+                // 要偵測上一個 把它變成頭
+                prevRect = QRect(pt.x()*50 + 50, pt.y()*50, 50, 50);
+                prevList = items(prevRect);
+                for (QGraphicsItem *prevItem : prevList){
+                    if(WaterExplosion *we = dynamic_cast<WaterExplosion *>(prevItem)){
+                        if (we->direction == WaterExplosion::WaterExplosionDirection::lf){
+                            we->direction = WaterExplosion::WaterExplosionDirection::lfh;
+                        }
+                    }
+                }
                 break;
             case 2: // right
                 qDebug() << "[GameMRScene] 右爆炸已被禁止";
                 passColrg = false;
+                prevRect = QRect(pt.x()*50 - 50, pt.y()*50, 50, 50);
+                prevList = items(prevRect);
+                for (QGraphicsItem *prevItem : prevList){
+                    if(WaterExplosion *we = dynamic_cast<WaterExplosion *>(prevItem)){
+                        if (we->direction == WaterExplosion::WaterExplosionDirection::rg){
+                            we->direction = WaterExplosion::WaterExplosionDirection::rgh;
+                        }
+                    }
+                }
                 break;
             case 1: // up
                 qDebug() << "[GameMRScene] 上爆炸已被禁止";
                 passColup = false;
+                prevRect = QRect(pt.x()*50, pt.y()*50 + 50, 50, 50);
+                prevList = items(prevRect);
+                for (QGraphicsItem *prevItem : prevList){
+                    if(WaterExplosion *we = dynamic_cast<WaterExplosion *>(prevItem)){
+                        if (we->direction == WaterExplosion::WaterExplosionDirection::up){
+                            we->direction = WaterExplosion::WaterExplosionDirection::uph;
+                        }
+                    }
+                }
                 break;
             case 0: //down
                 qDebug() << "[GameMRScene] 下爆炸已被禁止";
                 passColdw = false;
+                prevRect = QRect(pt.x()*50, pt.y()*50 - 50, 50, 50);
+                prevList = items(prevRect);
+                for (QGraphicsItem *prevItem : prevList){
+                    if(WaterExplosion *we = dynamic_cast<WaterExplosion *>(prevItem)){
+                        if (we->direction == WaterExplosion::WaterExplosionDirection::dw){
+                            we->direction = WaterExplosion::WaterExplosionDirection::dwh;
+                        }
+                    }
+                }
                 break;
             }
 
             continue;
         }
-        // 4. 偵測位置放
+        // 4-5. 偵測位置放
         switch(putcount%4){
         case 3: // 左
             if(!passCollf){
@@ -481,13 +653,179 @@ void GameMRScene::waterballoonExplosion(WaterBalloon *wb){
         }
     }
 
+    // 5. 場上的爆炸，全部（破壞 MaBrick, FxBrick, DropItem, Player etc）
+    QList<QGraphicsItem *> itemsNext = items();
+    for (QGraphicsItem *item : itemsNext){
+        // 5-1. 以「WaterExplosion」為主體
+        if (WaterExplosion *we = dynamic_cast<WaterExplosion*>(item)){
+            // 5-1-1. 偵測是否為重要點位 做刪除「MaBrick, FxBrick」
+            switch(we->direction){
+            case WaterExplosion::WaterExplosionDirection::ce: // 中間 偵測四周 上 → 下 → 左 → 右
+            {
+                QRectF nextRect(we->pos().x(), we->pos().y()-50, 50, 50);
+                QList<QGraphicsItem *> itemAtNext = items(nextRect);
+                for (QGraphicsItem *item : itemAtNext) {
+                    if(MaBrick *ma = dynamic_cast<MaBrick*>(item)){
+                        generateItem(ma->pos().x(), ma->pos().y());
+                        ma->setPos(-100, -100);
+                    } else if (FxBrick *fb = dynamic_cast<FxBrick*>(item)){
+                        generateItem(fb->pos().x(), fb->pos().y());
+                        fb->setPos(-100, -100);
+                    }
+                }
+            }
+            {
+                QRectF nextRect(we->pos().x(), we->pos().y()+50, 50, 50);
+                QList<QGraphicsItem *> itemAtNext = items(nextRect);
+                for (QGraphicsItem *item : itemAtNext) {
+                    if(MaBrick *ma = dynamic_cast<MaBrick*>(item)){
+                        generateItem(ma->pos().x(), ma->pos().y());
+                        ma->setPos(-100, -100);
+                    } else if (FxBrick *fb = dynamic_cast<FxBrick*>(item)){
+                        generateItem(fb->pos().x(), fb->pos().y());
+                        fb->setPos(-100, -100);
+                    }
+                }
+            }
+            {
+                QRectF nextRect(we->pos().x()-50, we->pos().y(), 50, 50);
+                QList<QGraphicsItem *> itemAtNext = items(nextRect);
+                for (QGraphicsItem *item : itemAtNext) {
+                    if(MaBrick *ma = dynamic_cast<MaBrick*>(item)){
+                        generateItem(ma->pos().x(), ma->pos().y());
+                        ma->setPos(-100, -100);
+                    } else if (FxBrick *fb = dynamic_cast<FxBrick*>(item)){
+                        generateItem(fb->pos().x(), fb->pos().y());
+                        fb->setPos(-100, -100);
+                    }
+                }
+            }
+            {
+                QRectF nextRect(we->pos().x()+50, we->pos().y(), 50, 50);
+                QList<QGraphicsItem *> itemAtNext = items(nextRect);
+                for (QGraphicsItem *item : itemAtNext) {
+                    if(MaBrick *ma = dynamic_cast<MaBrick*>(item)){
+                        generateItem(ma->pos().x(), ma->pos().y());
+                        ma->setPos(-100, -100);
+                        qDebug() << "[GameMRScene] MaBrick 已被移動至 (-100, -100)";
+                    } else if (FxBrick *fb = dynamic_cast<FxBrick*>(item)){
+                        generateItem(fb->pos().x(), fb->pos().y());
+                        fb->setPos(-100, -100);
+                        qDebug() << "[GameMRScene] FxBrick 已被移動至 (-100, -100)";
+                    }
+                }
+            }
+                break;
+            case WaterExplosion::WaterExplosionDirection::uph: // 上頭 偵測往上一格
+            {
+                QRectF nextRect(we->pos().x(), we->pos().y()-50, 50, 50);
+                QList<QGraphicsItem *> itemAtNext = items(nextRect);
+                for (QGraphicsItem *item : itemAtNext) {
+                    if(MaBrick *ma = dynamic_cast<MaBrick*>(item)){
+                        ma->setPos(-100, -100);
+                    } else if (FxBrick *fb = dynamic_cast<FxBrick*>(item)){
+                        fb->setPos(-100, -100);
+                    }
+                }
+            }
+                break;
+            case WaterExplosion::WaterExplosionDirection::dwh: // 下頭 偵測往下一格
+            {
+                QRectF nextRect(we->pos().x(), we->pos().y()+50, 50, 50);
+                QList<QGraphicsItem *> itemAtNext = items(nextRect);
+                for (QGraphicsItem *item : itemAtNext) {
+                    if(MaBrick *ma = dynamic_cast<MaBrick*>(item)){
+                        ma->setPos(-100, -100);
+                    } else if (FxBrick *fb = dynamic_cast<FxBrick*>(item)){
+                        fb->setPos(-100, -100);
+                    }
+                }
+            }
+                break;
+            case WaterExplosion::WaterExplosionDirection::lfh: // 左頭 偵測往左一格
+            {
+                QRectF nextRect(we->pos().x()-50, we->pos().y(), 50, 50);
+                QList<QGraphicsItem *> itemAtNext = items(nextRect);
+                for (QGraphicsItem *item : itemAtNext) {
+                    if(MaBrick *ma = dynamic_cast<MaBrick*>(item)){
+                        ma->setPos(-100, -100);
+                    } else if (FxBrick *fb = dynamic_cast<FxBrick*>(item)){
+                        fb->setPos(-100, -100);
+                    }
+                }
+            }
+                break;
+            case WaterExplosion::WaterExplosionDirection::rgh: // 右頭 偵測往右一格
+            {
+                QRectF nextRect(we->pos().x()+50, we->pos().y(), 50, 50);
+                QList<QGraphicsItem *> itemAtNext = items(nextRect);
+                for (QGraphicsItem *item : itemAtNext) {
+                    if(MaBrick *ma = dynamic_cast<MaBrick*>(item)){
+                        ma->setPos(-100, -100);
+                    } else if (FxBrick *fb = dynamic_cast<FxBrick*>(item)){
+                        fb->setPos(-100, -100);
+                    }
+                }
+            }
+                break;
+            }
+            // 5-1-2. 刪除所有當地的 DropItem, 影響 Player, Robot, Monster
+            {
+                QRectF nextRect(we->pos().x(), we->pos().y(), 50, 50);
+                QList<QGraphicsItem *> itemAtNext = items(nextRect);
+                for (QGraphicsItem *item : itemAtNext) {
+                    if(DropItem *di = dynamic_cast<DropItem*>(item)){
+                        di->setPos(-100, -100);
+                        qDebug() << "[GameMRScene] DropItem 已被移動至 (-100, -100)";
+                    }
+                }
+            }
+        }
+    }
     delete(wb);
+}
+
+void GameMRScene::generateItem(int x, int y){
+    DropItem *di;
+    switch(QRandomGenerator::global()->bounded(7)){
+    case 6:
+        di = new DropItem(nullptr, DropItem::DropItemType::moonwalk);
+        qDebug() << "[GameMRScene] 生成「月亮鞋」！";
+        break;
+    case 5:
+        di = new DropItem(nullptr, DropItem::DropItemType::needle);
+        qDebug() << "[GameMRScene] 生成「針」！";
+        break;
+    case 4:
+        di = new DropItem(nullptr, DropItem::DropItemType::glove);
+        qDebug() << "[GameMRScene] 生成「手套」！";
+        break;
+    case 3:
+        di = new DropItem(nullptr, DropItem::DropItemType::power_potion);
+        qDebug() << "[GameMRScene] 生成「藥水」！";
+        break;
+    case 2:
+        di = new DropItem(nullptr, DropItem::DropItemType::speed_shoes);
+        qDebug() << "[GameMRScene] 生成「加速」！";
+        break;
+    case 1:
+        di = new DropItem(nullptr, DropItem::DropItemType::turtle);
+        qDebug() << "[GameMRScene] 生成「烏龜」！";
+        break;
+    case 0:
+        di = new DropItem(nullptr, DropItem::DropItemType::waterballoon);
+        qDebug() << "[GameMRScene] 生成「水球」！";
+        break;
+    }
+    addItem(di);
+    di->setPos(x+10, y+10);
 }
 
 // MARK: - Tick
 void GameMRScene::tick() {
     // 每 0.01 秒觸發一次
     QList<QGraphicsItem*> allItems = items(); // scene 所有的 items
+    timeSec++;
 
     // 1. 觸發玩家走路（移動順暢）
     if ((ipX+ipY) != 0){
@@ -510,6 +848,31 @@ void GameMRScene::tick() {
             qDebug() << "[GameMRScene] 目前 Player 所屬 Cell (" << ((pX+10)/50+1) << "," << ((pY+10)/50+1) << ")";
         }
         player->setPos(pX,pY);
+    }
+
+    // 1-1. 雙倍走路（再偵測一次）
+    if(itemSpeed){
+        if ((ipX+ipY) != 0){
+            if(ipX > 0){
+                pX++;
+                ipX--;
+            } else if (ipX < 0) {
+                pX--;
+                ipX++;
+            }
+            if(ipY > 0){
+                pY++;
+                ipY--;
+            } else if (ipY < 0) {
+                pY--;
+                ipY++;
+            }
+            if (ipX+ipY == 0){
+                qDebug() << "[GameMRScene] Player 成功走路並走到 (" << pX << "," << pY << ")";
+                qDebug() << "[GameMRScene] 目前 Player 所屬 Cell (" << ((pX+10)/50+1) << "," << ((pY+10)/50+1) << ")";
+            }
+            player->setPos(pX,pY);
+        }
     }
 
     // 2. 檢查場景 objects 處理事件
@@ -540,7 +903,7 @@ void GameMRScene::tick() {
             continue;
         }
         // 2-2. Water Balloon
-        if (WaterBalloon *wb = dynamic_cast<WaterBalloon*>(item)){
+        else if (WaterBalloon *wb = dynamic_cast<WaterBalloon*>(item)){
             if(wb->boomgatime > 0){
                 // 2-2-1. 處理Boomga時間
                 wb->boomgatime--;
@@ -552,8 +915,7 @@ void GameMRScene::tick() {
             continue;
         }
         // 2-3. Water Balloon Explonsion
-        // 包含動畫與物件拆除、怪物殺死、玩家進入膠著、刪除物品、敵人陷入膠著
-        if (WaterExplosion *we = dynamic_cast<WaterExplosion*>(item)){
+        else if (WaterExplosion *we = dynamic_cast<WaterExplosion*>(item)){
             // 他附近的事件
             // 遇到碰撞刪除箱子等等
             // 自己本身變更動畫
@@ -563,5 +925,92 @@ void GameMRScene::tick() {
                 delete(we);
             }
         }
+        // 2-4. DropItem
+        else if (DropItem *di = dynamic_cast<DropItem*>(item)){
+            // 2-4-1. Animation
+            if(timeSec%20<10){
+                di->setPos(di->pos().x(), di->pos().y()-1);
+            }else{
+                di->setPos(di->pos().x(), di->pos().y()+1);
+            }
+            // 2-4-2. touched Player
+            QRect nextRect(di->pos().x(), di->pos().y(), 30, 30);
+            QList<QGraphicsItem*> touchedItems = items(nextRect);
+            for(QGraphicsItem *tItem : touchedItems){
+                if(dynamic_cast<Player*>(tItem)){
+                    qDebug() << "[GameMRScene] 物品碰到玩家";
+                    switch(di->type){
+                    case DropItem::DropItemType::waterballoon:
+                        waterballMaxCount++;
+                        if(waterballMaxCount > 5){
+                            waterballMaxCount = 5;
+                        }
+                        qDebug() << "[GameMRScene] 水球++，目前有" << waterballMaxCount;
+                        break;
+                    case DropItem::DropItemType::glove:
+                        itemGlove = true;
+                        break;
+                    case DropItem::DropItemType::power_potion:
+                        waterballPower++;
+                        if(waterballPower > 5){
+                            waterballPower = 5;
+                        }
+                        qDebug() << "[GameMRScene] 威力++，目前有" << waterballPower;
+                        break;
+                    case DropItem::DropItemType::speed_shoes:
+                        itemSpeed = true;
+                        qDebug() << "[GameMRScene] 獲得加速";
+                        break;
+                    case DropItem::DropItemType::turtle:
+                        itemTurtle = true;
+                        qDebug() << "[GameMRScene] 獲得烏龜";
+                        break;
+                    case DropItem::DropItemType::moonwalk:
+                        moonTime = 1000;
+                        break;
+                    case DropItem::DropItemType::needle:
+                        itemNeedle = true;
+                        break;
+                    }
+                    qDebug() << "[GameMRScene] 道具再見！";
+                    delete(di);
+                }
+            }
+        }
+    }
+
+    // 3. ui info
+    updateTextInfo();
+
+}
+
+// MARK: - ITEM
+void GameMRScene::updateTextInfo(){
+    textWater->setPlainText(QString("%1").arg(waterballMaxCount));
+    textPower->setPlainText(QString("%1").arg(waterballPower));
+    if (itemSpeed){
+        textSpeed->setPlainText("有");
+    } else {
+        textSpeed->setPlainText("無");
+    }
+    if (itemTurtle){
+        textTurtle->setPlainText("有");
+    } else {
+        textTurtle->setPlainText("無");
+    }
+    if (itemNeedle){
+        textNeedle->setPlainText("有");
+    } else {
+        textNeedle->setPlainText("無");
+    }
+    if (itemGlove){
+        textGlove->setPlainText("有");
+    } else {
+        textGlove->setPlainText("無");
+    }
+    if (moonTime > 0){
+        textMoon->setPlainText(QString("%1.%2s").arg(moonTime/100).arg(moonTime%100));
+    } else {
+        textMoon->setPlainText("無");
     }
 }

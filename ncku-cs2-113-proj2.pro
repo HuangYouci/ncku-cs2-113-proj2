@@ -12,6 +12,7 @@ SOURCES += \
     src/elements/ClickableButton.cpp \
     src/main.cpp \
     src/GameWindow.cpp \
+    src/objects/DropItem.cpp \
     src/objects/FxBrick.cpp \
     src/objects/InBrick.cpp \
     src/objects/MaBrick.cpp \
@@ -25,6 +26,7 @@ HEADERS += \
     src/GameWindow.h \
     src/core/enums.h \
     src/elements/ClickableButton.h \
+    src/objects/DropItem.h \
     src/objects/FxBrick.h \
     src/objects/InBrick.h \
     src/objects/MaBrick.h \

@@ -18,13 +18,14 @@ public:
         up,
         dw,
         lf,
-        rg
+        rg,
+        ce
     };
 
     WaterExplosion(QGraphicsItem *parent = nullptr, WaterExplosionDirection dir = WaterExplosionDirection::up);
     WaterExplosionDirection direction;
 
-    int time = 200;
+    int time = 100;
 
     void updateImage();
 

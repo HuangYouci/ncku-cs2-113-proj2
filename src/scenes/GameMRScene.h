@@ -7,6 +7,7 @@
 #include <QPointF>        // 座標
 #include <QKeyEvent>      // 鍵盤
 #include <QTimer>         // Tick
+#include <QGraphicsTextItem>
 
 #include "src/core/enums.h"
 #include "src/objects/InBrick.h"
@@ -15,6 +16,7 @@
 #include "src/objects/Player.h"
 #include "src/objects/WaterBalloon.h"
 #include "src/objects/WaterExplosion.h"
+#include "src/objects/DropItem.h"
 
 class GameMRScene : public QGraphicsScene
 {
@@ -40,6 +42,7 @@ protected:
 private:
     // TICK
     QTimer *timer;
+    long long int timeSec = 0;
     bool timerEnabled = false;
 
     // MAP BUILDER
@@ -54,15 +57,31 @@ private:
     int pY;             // 玩家位置Ｙ
     int ipX;            // 待處理的玩家位置Ｘ
     int ipY;            // 待處理的玩家位置Ｙ
-    int waterballMaxCount = 2; // 可施放水球最大數
+    int waterballMaxCount = 1; // 可施放水球最大數
     int waterballCurCount = 0; // 目前水球在場上
-    int waterballPower = 5;    // 水球威力（格，最大 5）
+    int waterballPower = 1;    // 水球威力（格，最大 5）
+    bool itemSpeed = false; // speed
+    bool itemTurtle = false; // turtle
+    bool itemNeedle = false; //  Needle
+    bool itemGlove = false; // Glove
+    int moonTime = 0; // moon time
 
     void movingMaBrick(direction way, MaBrick *mb);
 
     // WATERBALLOON
     void puttingWaterballoon(int cellX, int cellY);
     void waterballoonExplosion(WaterBalloon *wb);
+
+    // ITEMS
+    void generateItem(int x, int y);
+    QGraphicsTextItem *textWater;
+    QGraphicsTextItem *textPower;
+    QGraphicsTextItem *textSpeed;
+    QGraphicsTextItem *textTurtle;
+    QGraphicsTextItem *textNeedle;
+    QGraphicsTextItem *textGlove;
+    QGraphicsTextItem *textMoon;
+    void updateTextInfo();
 
 private slots:
     void tick();
