@@ -1,5 +1,5 @@
-#ifndef GameMMScene_H
-#define GameMMScene_H
+#ifndef GameMMTScene_H
+#define GameMMTScene_H
 
 #include <QGraphicsScene> // 場景建立
 #include <QObject>        // 連接槽
@@ -20,7 +20,7 @@
 #include "src/objects/DropItem.h"
 #include "src/objects/Monster.h"
 
-class GameMMScene : public QGraphicsScene
+class GameMMTScene : public QGraphicsScene
 {
     Q_OBJECT
 
@@ -32,8 +32,8 @@ class GameMMScene : public QGraphicsScene
     };
 
 public:
-    GameMMScene(QObject *parent = nullptr);
-    ~GameMMScene();
+    GameMMTScene(QObject *parent = nullptr);
+    ~GameMMTScene();
     bool timerEnabled = false;
 
 signals:
@@ -103,4 +103,4 @@ private slots:
     void tick();
 };
 
-#endif // GameMMScene_H
+#endif // GameMMTScene_H

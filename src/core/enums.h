@@ -4,8 +4,11 @@
 enum class sceneslist {
     title,
     gameMM,
+    gameMMT,
     gameMR,
-    ending
+    ending,
+    wining,
+    gameMMB
 };
 
 #endif // ENUMS_H

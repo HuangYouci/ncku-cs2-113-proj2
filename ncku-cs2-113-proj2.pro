@@ -12,35 +12,45 @@ SOURCES += \
     src/elements/ClickableButton.cpp \
     src/main.cpp \
     src/GameWindow.cpp \
+    src/objects/Boss.cpp \
     src/objects/DropItem.cpp \
     src/objects/FxBrick.cpp \
     src/objects/InBrick.cpp \
     src/objects/MaBrick.cpp \
+    src/objects/Monster.cpp \
     src/objects/Player.cpp \
     src/objects/Robot.cpp \
     src/objects/WaterBalloon.cpp \
     src/objects/WaterExplosion.cpp \
     src/scenes/EndingScene.cpp \
+    src/scenes/GameMMBScene.cpp \
     src/scenes/GameMMScene.cpp \
+    src/scenes/GameMMTScene.cpp \
     src/scenes/GameMRScene.cpp \
-    src/scenes/TitleScene.cpp
+    src/scenes/TitleScene.cpp \
+    src/scenes/WiningScene.cpp
 
 HEADERS += \
     src/GameWindow.h \
     src/core/enums.h \
     src/elements/ClickableButton.h \
+    src/objects/Boss.h \
     src/objects/DropItem.h \
     src/objects/FxBrick.h \
     src/objects/InBrick.h \
     src/objects/MaBrick.h \
+    src/objects/Monster.h \
     src/objects/Player.h \
     src/objects/Robot.h \
     src/objects/WaterBalloon.h \
     src/objects/WaterExplosion.h \
     src/scenes/EndingScene.h \
+    src/scenes/GameMMBScene.h \
     src/scenes/GameMMScene.h \
+    src/scenes/GameMMTScene.h \
     src/scenes/GameMRScene.h \
-    src/scenes/TitleScene.h
+    src/scenes/TitleScene.h \
+    src/scenes/WiningScene.h
 
 FORMS +=
 

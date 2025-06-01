@@ -97,19 +97,29 @@ void GameMRScene::keyPressEvent(QKeyEvent *event){
         case Qt::Key_W:
             qDebug() << "[GameMRScene] 模擬機器人 按下 W 前";
             robot->kup();
+            movingRobot(direction::up);
             break;
         case Qt::Key_A:
             qDebug() << "[GameMRScene] 模擬機器人 按下 A 左";
             robot->klf();
+            movingRobot(direction::lf);
             break;
         case Qt::Key_S:
             qDebug() << "[GameMRScene] 模擬機器人 按下 S 下";
             robot->kdw();
+            movingRobot(direction::dw);
             break;
         case Qt::Key_D:
             qDebug() << "[GameMRScene] 模擬機器人 按下 D 右";
             robot->krg();
+            movingRobot(direction::rg);
             break;
+    case Qt::Key_Q:
+        qDebug() << "[GameMRScene] 模擬機器人 按下 Q 放下炸彈";
+        qDebug() << "[GameMRScene] 機器人放下之炸彈不計數";
+        waterballCurCount--;
+        puttingWaterballoon(((rX+10)/50+1),((rY+10)/50+1));
+        break;
     }
 
 }
@@ -291,19 +301,10 @@ void GameMRScene::setup(){
     }
 
     // MARK: - 設定地圖
-    // 設定地圖座標組（用於放置位置）
-    for (int row = 0; row < 9; ++row) {
-        QVector<QPointF> rowVec;
-        for (int col = 0; col < 11; ++col) {
-            QPointF p(col * 50, row * 50);
-            rowVec.append(p);
-        }
-        mapPos.append(rowVec);
-    }
 
     // 讀地圖檔案
     qDebug() << "[GameMRScene] 讀取地圖檔案";
-    QString filePath = ":/data/maps/testmap.txt";
+    QString filePath = ":/data/maps/gameMM01.txt";
     QFile file(filePath);
 
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
@@ -429,6 +430,8 @@ void GameMRScene::setup(){
 
 void GameMRScene::movingPlayer(direction dir){
 
+    qDebug() << "[!!] 本模式玩家應不可移動。本處已實作玩家若移動機器人仍可正確尋路，是為 Bonus 的玩家可與 Robot 對戰之加分項。";
+
     // 如果在爆炸中 忽略
     if(isPlayerBlocked>0){
         return;
@@ -495,7 +498,7 @@ void GameMRScene::movingPlayer(direction dir){
     QList<QGraphicsItem *> itemAtNext = items(nextRect); // 用 items 查看下一個位置有哪些區塊
     for (QGraphicsItem *item : itemAtNext) {
         // 檢查有無碰撞到以下方塊，確認要阻止或進行功能
-        if (dynamic_cast<InBrick *>(item) || dynamic_cast<FxBrick *>(item) ){
+        if (dynamic_cast<InBrick *>(item) || dynamic_cast<FxBrick *>(item) || dynamic_cast<WaterBalloon*>(item)){
             // 2-1. InBrick、FxBrick 不能移動的方塊
             qDebug() << "[GameMRScene] Player 碰到 In, Fx 磚塊，無法移動到 (" << nextX << "," << nextY << ")";
             return;
@@ -533,6 +536,104 @@ void GameMRScene::movingPlayer(direction dir){
         qDebug() << "[GameMRScene] Player | (" << ipX << "," << ipY << ")";
     } else {
         qDebug() << "[GameMRScene] 移動尚在冷卻期，忽略";
+        return;
+    }
+}
+
+void GameMRScene::movingRobot(direction dir){
+    // 判斷方位
+    int dX = 0, dY = 0;
+    switch(dir){
+    case direction::up:
+        dY = -50;
+        break;
+    case direction::dw:
+        dY = 50;
+        break;
+    case direction::lf:
+        dX = -50;
+        break;
+    case direction::rg:
+        dX = 50;
+        break;
+    }
+
+    // nextX, nextY 預測玩家下個移動位置並進行檢查
+    int nextX = rX + dX;
+    int nextY = rY + dY;
+
+    // 1. 邊界檢查
+    if ((nextX > 500) || (nextX < 0) || (nextY > 400) || (nextY < -10)){
+        qDebug() << "[GameMRScene] Robot 無法走路，移動 (" << dX << "," << dY << ") 後為 (" << pX << "," << pY << ") 將超過邊界";
+        return;
+    }
+
+    // 2. 碰撞檢查
+    QRectF nextRect(nextX, nextY+10, 35, 35); // 應該為 56, 50 但弄小塊一點
+    QList<QGraphicsItem *> itemAtNext = items(nextRect); // 用 items 查看下一個位置有哪些區塊
+    bool putBombAfter = false;
+    for (QGraphicsItem *item : itemAtNext) {
+        // 檢查有無碰撞到以下方塊，確認要阻止或進行功能
+        if (dynamic_cast<InBrick *>(item) || dynamic_cast<FxBrick *>(item) ){
+            // 2-1. InBrick、FxBrick 不能移動的方塊
+            qDebug() << "[GameMRScene] Robot 碰到 In, Fx 磚塊，無法移動到 (" << nextX << "," << nextY << ")";
+            putBombAfter = true;
+        }
+        if (MaBrick *mb = dynamic_cast<MaBrick *>(item)){
+            // 前面只需檢查，現在需要將結果指標存到 MaBrick *mb 中
+            // 2-2. MaBrick 可移動方塊，進行移動方塊判斷。但仍不能動
+            qDebug() << "[GameMRScene] Robot 碰到 Ma 磚塊，無法移動到 (" << nextX << "," << nextY << ")";
+            if (dX > 0){
+                if (movingMaBrickByRobot(direction::rg, mb)){
+                    return;
+                } else {
+                    putBombAfter = true;
+                    break;
+                }
+            }
+            if (dX < 0){
+                if (movingMaBrickByRobot(direction::lf, mb)){
+                    return;
+                } else {
+                    putBombAfter = true;
+                    break;
+                }
+            }
+            if (dY > 0){
+                if (movingMaBrickByRobot(direction::dw, mb)){
+                    return;
+                } else {
+                    putBombAfter = true;
+                    break;
+                }
+            }
+            if (dY < 0){
+                if (movingMaBrickByRobot(direction::up, mb)){
+                    return;
+                } else {
+                    putBombAfter = true;
+                    break;
+                }
+            }
+            qDebug() << "[GameMRScene] 未知的 MaBrick 移動方位";
+            putBombAfter = true;
+        }
+    }
+    if(putBombAfter){
+        qDebug() << "[Robot] 放下水球！";
+        waterballCurCount--;
+        puttingWaterballoon(((rX+10)/50+1),((rY+10)/50+1));
+        return;
+    }
+
+    // 將移動距離加入待處理（如果還可以走的話）
+    if(iprX+iprY == 0){
+        iprX = dX;
+        iprY = dY;
+        qDebug() << "[GameMRScene] Robot 成功觸發走路，將 (" << iprX << "," << iprY << ") 加入待處理序列";
+        qDebug() << "[GameMRScene] Robot | (" << iprX << "," << iprY << ")";
+    } else {
+        qDebug() << "[GameMRScene] Robot 移動尚在冷卻期，忽略";
         return;
     }
 }
@@ -583,7 +684,7 @@ void GameMRScene::movingMaBrick(direction way, MaBrick *mb){
     QList<QGraphicsItem *> itemAtNext = items(nextRect);
     for (QGraphicsItem *item : itemAtNext) {
         // MaBrick 移動的碰撞檢測
-        if (dynamic_cast<InBrick *>(item) || dynamic_cast<FxBrick *>(item) || dynamic_cast<MaBrick *>(item)){
+        if (dynamic_cast<InBrick *>(item) || dynamic_cast<FxBrick *>(item) || dynamic_cast<MaBrick *>(item) || dynamic_cast<Player *>(item) || dynamic_cast<Robot *>(item)){
             // 2-1. InBrick、FxBrick、MaBrick 阻擋
             qDebug() << "[GameMRScene] MaBrick 碰到 In, Fx, Ma 磚塊，無法移動到 (" << pX+dX << "," << pY+dY << ")";
             return;
@@ -600,6 +701,69 @@ void GameMRScene::movingMaBrick(direction way, MaBrick *mb){
         qDebug() << "[GameMRScene] 處理 MaBrick 失敗，因為仍有佇列";
     }
 }
+
+bool GameMRScene::movingMaBrickByRobot(direction way, MaBrick *mb){
+
+    // true 推成功、 false 推失敗
+
+    int dX = 0;
+    int dY = 0;
+
+    switch(way){
+    case direction::up:
+        dY = -50;
+        break;
+    case direction::dw:
+        dY = 50;
+        break;
+    case direction::lf:
+        dX = -50;
+        break;
+    case direction::rg:
+        dX = 50;
+        break;
+    }
+
+
+    qreal pX = mb->pos().x();
+    qreal pY = mb->pos().y();
+
+    int nextX = pX + dX;
+    int nextY = pY + dY;
+
+    qDebug() << "[GameMRScene] MaBrick 目前在 (" << pX << "," << pY << ")。嘗試將他走 (" << dX << "," << dY << ")";
+
+    // 1. 邊界檢查
+    if ((nextX > 500) || (nextX < 0) || (nextY > 400) || (nextY < 0)){
+        qDebug() << "[GameMRScene] MaBrick 無法移動，移動 (" << dX << "," << dY << ") 後為 (" << pX << "," << pY << ") 將超過邊界";
+        return false;
+    }
+
+    // 2. 碰撞檢查
+    QRectF nextRect(pX + dX, pY + dY, 50, 50);
+    QList<QGraphicsItem *> itemAtNext = items(nextRect);
+    for (QGraphicsItem *item : itemAtNext) {
+        // MaBrick 移動的碰撞檢測
+        if (dynamic_cast<InBrick *>(item) || dynamic_cast<FxBrick *>(item) || dynamic_cast<MaBrick *>(item) || dynamic_cast<Player *>(item) || dynamic_cast<Robot *>(item)){
+            // 2-1. InBrick、FxBrick、MaBrick 阻擋
+            qDebug() << "[GameMRScene] MaBrick 碰到 In, Fx, Ma 磚塊，無法移動到 (" << pX+dX << "," << pY+dY << ")";
+            return false;
+        }
+    }
+
+    // 移動成功（加入 mb 佇列，在 tick 執行）
+    if(mb->ipX + mb->ipY == 0){
+        mb->ipX = dX;
+        mb->ipY = dY;
+        qDebug() << "[GameMRScene] 成功處理 MaBrick 移動，移動 (" << mb->ipX << "," << mb->ipY << ") 已加入佇列";
+        return true;
+    } else {
+        qDebug() << "[GameMRScene] 處理 MaBrick 失敗，因為仍有佇列";
+        return false;
+    }
+    return false;
+}
+
 
 // MARK: - WaterBalloon
 void GameMRScene::puttingWaterballoon(int cellX, int cellY){
@@ -1033,6 +1197,12 @@ void GameMRScene::waterballoonExplosion(WaterBalloon *wb){
                             qDebug() << "[GameMRScene] 玩家已被水球炸到，倒數三秒爆炸";
                         }
                     }
+                    if(Robot *rb = dynamic_cast<Robot *>(item)){
+                        // 玩家獲勝
+                        qDebug() << "[GameMRScene] 機器人已被水球炸到，玩家獲勝，倒數十秒重置";
+                        rb->setPos(-100, -100);
+                        requestSceneChange(sceneslist::wining);
+                    }
                 }
             }
         }
@@ -1042,10 +1212,8 @@ void GameMRScene::waterballoonExplosion(WaterBalloon *wb){
 
 void GameMRScene::generateItem(int x, int y){
     DropItem *di;
-    // This Mode Disabled Item
     qDebug() << "[GameMRScene] 本模式禁用道具";
     return;
-    //
     switch(QRandomGenerator::global()->bounded(7)){
     case 6:
         di = new DropItem(nullptr, DropItem::DropItemType::moonwalk);
@@ -1141,6 +1309,33 @@ void GameMRScene::tick() {
         }
     }
 
+    // 1A. 觸發機器人走路
+    if ((iprX+iprY) != 0){
+        if(iprX > 0){
+            rX++;
+            iprX--;
+            robot->krg();
+        } else if (iprX < 0) {
+            rX--;
+            iprX++;
+            robot->klf();
+        }
+        if(iprY > 0){
+            rY++;
+            iprY--;
+            robot->kdw();
+        } else if (iprY < 0) {
+            rY--;
+            iprY++;
+            robot->kup();
+        }
+        if (iprX+iprY == 0){
+            qDebug() << "[GameMRScene] Robot 成功走路並走到 (" << rX << "," << rY << ")";
+            qDebug() << "[GameMRScene] 目前 Robot 所屬 Cell (" << ((rX+10)/50+1) << "," << ((rY+10)/50+1) << ")";
+        }
+        robot->setPos(rX,rY);
+    }
+
     // 2. 檢查場景 objects 處理事件
     for (QGraphicsItem *item : allItems){
         // 2-1. MaBrick
@@ -1207,21 +1402,20 @@ void GameMRScene::tick() {
             }
 
             // 偵測手套（有無丟到邊界）
-            if(wb->pos().x() > 500){
-                qDebug() << "[GameMRScene] 丟出到右邊界，讓他回去";
-                wb->flyingX = -50;
+            if (wb->pos().x() >= 550) { // 移出右邊界
+                wb->setPos(wb->pos().x() - 550, wb->pos().y());
+                qDebug() << "[WaterBalloon] Wrapped from right to left!";
+            } else if (wb->pos().x() < -50) { // 移出左邊界 (圖像左上角在-50時完全離開)
+                wb->setPos(wb->pos().x() + 550, wb->pos().y());
+                qDebug() << "[WaterBalloon] Wrapped from left to right!";
             }
-            if(wb->pos().x() < 0){
-                qDebug() << "[GameMRScene] 丟出到右邊界，讓他回去";
-                wb->flyingX = 50;
-            }
-            if(wb->pos().y() > 450){
-                qDebug() << "[GameMRScene] 丟出到下邊界，讓他回去";
-                wb->flyingY = -50;
-            }
-            if(wb->pos().y() < 0){
-                qDebug() << "[GameMRScene] 丟出到上邊界，讓他回去";
-                wb->flyingY = 50;
+
+            if (wb->pos().y() >= 450) { // 移出下邊界 (遊戲區域Y上限)
+                wb->setPos(wb->pos().x(), wb->pos().y() - 450);
+                qDebug() << "[WaterBalloon] Wrapped from bottom to top!";
+            } else if (wb->pos().y() < -50) { // 移出上邊界 (圖像左上角在-50時完全離開)
+                wb->setPos(wb->pos().x(), wb->pos().y() + 450);
+                qDebug() << "[WaterBalloon] Wrapped from top to bottom!";
             }
 
             // 檢測停止時有無碰到物品，有的話再往該方向一格
@@ -1361,8 +1555,26 @@ void GameMRScene::tick() {
         if(isPlayerBlocked == 0){
             // 扣命
             life--;
+            itemSpeed = false;
+            itemTurtle = false;
+            itemNeedle = false;
+            gloveTime = 0;
+            moonTime = 0;
+            waterballMaxCount = 1;
+            waterballPower = 1;
+            player->turtleEnabled = false;
             // 回初始點
+            ipX = 0;
+            ipY = 0;
             player->setPos(initX, initY);
+            pX = initX;
+            pY = initY;
+
+            // 沒命？
+            if (life <= 0){
+                requestSceneChange(sceneslist::ending);
+            }
+
             QTransform transform;
             transform.scale(-1, 1);
             transform.translate(-50, 0);
@@ -1392,15 +1604,250 @@ void GameMRScene::tick() {
                 player->setPixmap(QPixmap(":/data/character/palyer.png").copy(220, 207, 50, 56));
                 break;
             }
-
-            // 沒命？
-            if (life <= 0){
-                requestSceneChange(sceneslist::ending);
-            }
         }
     } else {
         player->isBlocked = false;
     }
+
+    // 6. 每一秒 且機器人不在走路時 讓機器人思考（本項為機器人思考）
+    if((timeSec%100==0) && (iprX+iprY == 0) &&(timeSec > 500)){
+        int mapNow[9][11] = {0};
+        int robotCellX = 0;
+        int robotCellY = 0;
+        // 6-1. 製作地圖
+        for(int i = 0; i < 9; i++){
+            for(int j = 0 ; j < 11; j++){
+                QRectF nextRect = QRectF(j*50+25, i*50+25, 10, 10);
+                QList<QGraphicsItem *> itemsNext = items(nextRect);
+                for(QGraphicsItem *item : itemsNext){
+                    if(dynamic_cast<MaBrick *>(item)){
+                        mapNow[i][j] = 1;
+                        continue;
+                    }
+                    if(dynamic_cast<FxBrick *>(item)){
+                        mapNow[i][j] = 2;
+                        continue;
+                    }
+                    if(dynamic_cast<InBrick *>(item)){
+                        mapNow[i][j] = 3;
+                        continue;
+                    }
+                    if(dynamic_cast<Player *>(item)){
+                        mapNow[i][j] = 4;
+                        continue;
+                    }
+                    if(dynamic_cast<Robot *>(item)){
+                        mapNow[i][j] = 5;
+                        robotCellY = i;
+                        robotCellX = j;
+                        continue;
+                    }
+                    if(dynamic_cast<WaterBalloon *>(item)){
+                        mapNow[i][j] = 6;
+                        // 炸彈可能區域
+                        // 上
+                        for(int k = 1 ; k <= waterballPower ; k++){
+                            if(i+k<9){
+                                if (mapNow[i+k][j] == 0){
+                                mapNow[i+k][j] = 7;
+                                }
+                            }
+                            if(i-k>0){
+                                if (mapNow[i-k][j] == 0){
+                                mapNow[i-k][j] = 7;
+                                }
+                            }
+                            if(j+k<11){
+                                if (mapNow[i][j+k] == 0){
+                                mapNow[i][j+k] = 7;
+                                }
+                            }
+                            if(j-k>0){
+                                if (mapNow[i][j-k]==0){
+                                mapNow[i][j-k] = 7;
+                                }
+                            }
+                        }
+                        continue;
+                    }
+                }
+            }
+        }
+
+        // 6-2. 畫出地圖
+        if (true){
+            qDebug() << "[GameMRScene] Now Map:";
+            for(int i = 0 ; i < 9 ; i++){
+                QString temp;
+                for(int j = 0 ; j < 11 ; j++){
+                    temp += QString::number(mapNow[i][j]);
+                    temp += " ";
+                }
+                qDebug().noquote() << temp;
+            }
+        }
+
+        bool robotactioned = false; // 機器人是否執行過操作？
+        bool haveToRun = false; // 是否要跑？
+        // 6-3. 機器人判斷：若有炸彈
+        if(mapNow[robotCellY][robotCellX] == 6 && !robotactioned && !haveToRun){
+            qDebug() << "[Robot] 機器人這格有炸彈！！！";
+            haveToRun = true;
+
+            {
+//            if(robotCellX < 11 && !robotactioned){ // 嘗試往右跑
+//                qDebug() << "[Robot] 機器人嘗試往右跑？";
+//                // 右邊有位置
+//                if(mapNow[robotCellY][robotCellX+1] == 0){
+//                    movingRobot(direction::rg);
+//                    robotactioned = true;
+//                    qDebug() << "[Robot] 機器人往右跑！";
+//                }
+//            }
+//            if(robotCellY > 0 && !robotactioned){ // 嘗試往上跑
+//                qDebug() << "[Robot] 機器人嘗試往上跑？";
+//                // 下邊有位置
+//                if(mapNow[robotCellY-1][robotCellX] == 0){
+//                    movingRobot(direction::up);
+//                    robotactioned = true;
+//                    qDebug() << "[Robot] 機器人往上跑！";
+//                }
+//            }
+//            if(robotCellY < 9 && !robotactioned){ // 嘗試往下跑
+//                qDebug() << "[Robot] 機器人嘗試往下跑？";
+//                // 上邊有位置
+//                if(mapNow[robotCellY+1][robotCellX] == 0){
+//                    movingRobot(direction::dw);
+//                    robotactioned = true;
+//                    qDebug() << "[Robot] 機器人往下跑！";
+//                }
+//            }
+//            if(!robotactioned){
+//                qDebug() << "[Robot] 機器人這格有炸彈，但無能為力！！！";
+//            }
+            }
+        }
+        for(int k = 1 ; k <= waterballPower && !robotactioned && !haveToRun ; k++){
+            // 判斷威力
+            // 左
+            if(robotCellX-k > 0){
+                if(mapNow[robotCellY][robotCellX-k] == 6){
+                    qDebug() << "[Robot] 在左側偵測到炸彈";
+                    haveToRun = true;
+                }
+            }
+            // 右邊
+            if(robotCellX+k < 11){
+                if(mapNow[robotCellY][robotCellX+k] == 6){
+                    qDebug() << "[Robot] 在右側偵測到炸彈";
+                    haveToRun = true;
+                }
+            }
+            // 上
+            if(robotCellY-k > 0){
+                if(mapNow[robotCellY-k][robotCellX] == 6){
+                    qDebug() << "[Robot] 在上側偵測到炸彈";
+                    haveToRun = true;
+                }
+            }
+            // 下
+            if(robotCellX+k < 9){
+                if(mapNow[robotCellY+k][robotCellX] == 6){
+                    qDebug() << "[Robot] 在下側偵測到炸彈";
+                    haveToRun = true;
+                }
+            }
+        }
+
+        if(haveToRun && !robotactioned){
+            switch(getDirectionToNearestZero(mapNow, robotCellX, robotCellY)){
+            case direction::up:
+                movingRobot(direction::up);
+                qDebug() << "[Robot] 機器人為了逃離，往上走";
+                break;
+            case direction::lf:
+                movingRobot(direction::lf);
+                qDebug() << "[Robot] 機器人為了逃離，往左走";
+                break;
+            case direction::dw:
+                movingRobot(direction::dw);
+                qDebug() << "[Robot] 機器人為了逃離，往下走";
+                break;
+            case direction::rg:
+                movingRobot(direction::rg);
+                qDebug() << "[Robot] 機器人為了逃離，往右走";
+                break;
+            }
+            robotSteps++;
+            robotactioned = true;
+        }
+
+        // 6-3A. 機器人判斷：如果機器人在自己的 1 格之內，放炸彈
+        if(!robotactioned){
+            if(robotCellX > 0 && !robotactioned){ // 左
+                if(mapNow[robotCellY][robotCellX-1] == 4){
+                    qDebug() << "[Robot] 要放炸彈，以炸死左邊的玩家";
+                    waterballCurCount--;
+                    puttingWaterballoon(((rX+10)/50+1),((rY+10)/50+1));
+                    robotSteps++;
+                    robotactioned = true;
+                }
+            }
+            if(robotCellX < 11 && !robotactioned){ // 右
+                if(mapNow[robotCellY][robotCellX+1] == 4){
+                    qDebug() << "[Robot] 要放炸彈，以炸死右邊的玩家";
+                    waterballCurCount--;
+                    puttingWaterballoon(((rX+10)/50+1),((rY+10)/50+1));
+                    robotSteps++;
+                    robotactioned = true;
+                }
+            }
+            if(robotCellY > 0 && !robotactioned){ // 上
+                if(mapNow[robotCellY-1][robotCellX] == 4){
+                    qDebug() << "[Robot] 要放炸彈，以炸死上邊的玩家";
+                    waterballCurCount--;
+                    puttingWaterballoon(((rX+10)/50+1),((rY+10)/50+1));
+                    robotSteps++;
+                    robotactioned = true;
+                }
+            }
+            if(robotCellY < 9 && !robotactioned){ // 下
+                if(mapNow[robotCellY+1][robotCellX] == 4){
+                    qDebug() << "[Robot] 要放炸彈，以炸死下邊的玩家";
+                    waterballCurCount--;
+                    puttingWaterballoon(((rX+10)/50+1),((rY+10)/50+1));
+                    robotSteps++;
+                    robotactioned = true;
+                }
+            }
+        }
+
+        // 6-4. 機器人判斷：無炸彈，找玩家
+        if(!robotactioned){
+            robotSteps++;
+            switch(getDirectionToNearestPlayer(mapNow, robotCellX, robotCellY)){
+            case direction::up:
+                movingRobot(direction::up);
+                qDebug() << "[Robot] 機器人為了找玩家，往上走";
+                break;
+            case direction::lf:
+                movingRobot(direction::lf);
+                qDebug() << "[Robot] 機器人為了找玩家，往左走";
+                break;
+            case direction::dw:
+                movingRobot(direction::dw);
+                qDebug() << "[Robot] 機器人為了找玩家，往下走";
+                break;
+            case direction::rg:
+                movingRobot(direction::rg);
+                qDebug() << "[Robot] 機器人為了找玩家，往右走";
+                break;
+            }
+            robotactioned = true;
+        }
+
+    }
+
 }
 
 // MARK: - ITEM
@@ -1439,4 +1886,168 @@ void GameMRScene::updateTextInfo(){
     if(timeSec > 500){
         robotText->setPlainText(QString("機器人：%1 步").arg(robotSteps));
     }
+}
+
+
+// robot
+GameMRScene::direction GameMRScene::getDirectionToNearestZero(int map[9][11], int robotX, int robotY) {
+    const int ROWS = 9;
+    const int COLS = 11;
+
+    // 方向對應（dx, dy）
+    int dx[4] = {0, 0, -1, 1};   // 上, 下, 左, 右 對應的 x 變化
+    int dy[4] = {-1, 1, 0, 0};   // 上, 下, 左, 右 對應的 y 變化
+
+    QString dirNames[4] = {"上", "下", "左", "右"};
+
+    // BFS 初始
+    bool visited[9][11] = {{false}};
+    std::pair<int,int> parent[9][11];
+
+    QQueue<std::pair<int,int>> q;
+
+    visited[robotY][robotX] = true;
+    q.enqueue({robotX, robotY});
+    parent[robotY][robotX] = {-1, -1};
+
+    while (!q.isEmpty()) {
+        auto [x, y] = q.dequeue();
+
+        // 找到安全空格 (0)，且不是起點本身
+        if (map[y][x] == 0 && !(x == robotX && y == robotY)) {
+            // 回溯路徑
+            QStringList pathSteps;
+            int tx = x, ty = y;
+
+            while (!(tx == robotX && ty == robotY)) {
+                auto [px, py] = parent[ty][tx];
+                for (int d = 0; d < 4; ++d) {
+                    if (px + dx[d] == tx && py + dy[d] == ty) {
+                        pathSteps.prepend(dirNames[d]);
+                        break;
+                    }
+                }
+                tx = px;
+                ty = py;
+            }
+
+            // 印出路徑
+            QString pathStr = pathSteps.join(" → ");
+            qDebug() << "[Robot - BFS Escape] " << pathStr;
+
+            // 回傳第一步方向
+            if (!pathSteps.isEmpty()) {
+                QString firstStep = pathSteps[0];
+                for (int d = 0; d < 4; ++d) {
+                    if (dirNames[d] == firstStep) {
+                        return static_cast<GameMRScene::direction>(d);
+                    }
+                }
+            }
+            break;
+        }
+
+        // 搜尋鄰近格子
+        for (int d = 0; d < 4; ++d) {
+            int nx = x + dx[d];
+            int ny = y + dy[d];
+
+            if (nx < 0 || nx >= COLS || ny < 0 || ny >= ROWS) continue;
+            if (visited[ny][nx]) continue;
+
+            // 判斷是否從危險區域移動
+            bool fromDanger = (map[y][x] == 6 || map[y][x] == 7);
+            bool toDanger = (map[ny][nx] == 6 || map[ny][nx] == 7);
+
+            // 不允許從安全區移動到危險區（炸彈警告區）
+            if (!fromDanger && toDanger) continue;
+
+            // 牆壁禁止通行
+            if (map[ny][nx] == 1 || map[ny][nx] == 2 || map[ny][nx] == 3) continue;
+
+            visited[ny][nx] = true;
+            q.enqueue({nx, ny});
+            parent[ny][nx] = {x, y};
+        }
+    }
+
+    qDebug() << "[Robot - BFS Escape] 找不到路徑，預設往右";
+    return GameMRScene::direction::rg;
+}
+
+GameMRScene::direction GameMRScene::getDirectionToNearestPlayer(int map[9][11], int robotX, int robotY) {
+    const int ROWS = 9;
+    const int COLS = 11;
+
+    // 注意：x 是 column（行），y 是 row（列）
+    int dx[4] = {0, 0, -1, 1};   // 上, 下, 左, 右：x 方向變化
+    int dy[4] = {-1, 1, 0, 0};   // 上, 下, 左, 右：y 方向變化
+
+    QString dirNames[4] = {"上", "下", "左", "右"};
+
+    bool visited[9][11] = {};
+    std::pair<int, int> parent[9][11];  // 儲存前一個點 (x, y)
+
+    QQueue<std::pair<int, int>> q;
+    visited[robotY][robotX] = true;
+    q.enqueue({robotX, robotY});
+    parent[robotY][robotX] = {-1, -1};
+
+    while (!q.isEmpty()) {
+        auto [x, y] = q.dequeue();
+
+        // 找到玩家
+        if (map[y][x] == 4) {
+            // 回溯路徑
+            QStringList pathSteps;
+            int tx = x, ty = y;
+
+            while (!(tx == robotX && ty == robotY)) {
+                auto [px, py] = parent[ty][tx];
+
+                for (int d = 0; d < 4; ++d) {
+                    if (px + dx[d] == tx && py + dy[d] == ty) {
+                        pathSteps.prepend(dirNames[d]);
+                        break;
+                    }
+                }
+
+                tx = px;
+                ty = py;
+            }
+
+            // 印出完整路徑
+            qDebug() << "[Robot] " << pathSteps.join(" → ");
+
+            if (!pathSteps.isEmpty()) {
+                QString first = pathSteps[0];
+                for (int d = 0; d < 4; ++d) {
+                    if (dirNames[d] == first) {
+                        return static_cast<GameMRScene::direction>(d);
+                    }
+                }
+            }
+
+            break;
+        }
+
+        // 搜尋四個方向
+        for (int d = 0; d < 4; ++d) {
+            int nx = x + dx[d];
+            int ny = y + dy[d];
+
+            if (nx < 0 || nx >= COLS || ny < 0 || ny >= ROWS) continue;
+            if (visited[ny][nx]) continue;
+
+            // 可走：0, 1, 2（牆3和炸彈區6/7不能走）
+            if (map[ny][nx] == 3 || map[ny][nx] == 6 || map[ny][nx] == 7) continue;
+
+            visited[ny][nx] = true;
+            q.enqueue({nx, ny});
+            parent[ny][nx] = {x, y};
+        }
+    }
+
+    qDebug() << "[Robot] 找不到路，預設往右";
+    return GameMRScene::direction::rg;
 }

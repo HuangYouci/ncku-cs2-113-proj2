@@ -31,6 +31,12 @@ GameWindow::GameWindow(QWidget *parent) : QMainWindow(parent){
     end = new EndingScene(this);
     connect(end, &EndingScene::requestSceneChange, this, &GameWindow::handleSwitchScene);
     connect(end, &EndingScene::requestQuitApplication, this, &GameWindow::handleQuitRequest);
+
+    // Win
+    win = new WiningScene(this);
+    connect(win, &WiningScene::requestSceneChange, this, &GameWindow::handleSwitchScene);
+    connect(win, &WiningScene::requestQuitApplication, this, &GameWindow::handleQuitRequest);
+
     // Switch Scene (Default)
     handleSwitchScene(sceneslist::title);
 }
@@ -43,6 +49,8 @@ void GameWindow::handleSwitchScene(sceneslist to){
 
     GameMRScene *tempMR = nullptr;
     GameMMScene *tempMM = nullptr;
+    GameMMTScene *tempMMT = nullptr;
+    GameMMBScene *tempMMB = nullptr;
 
     if (gameMR){
         tempMR = gameMR;
@@ -52,12 +60,27 @@ void GameWindow::handleSwitchScene(sceneslist to){
         tempMM = gameMM;
     }
 
+    if(gameMMT){
+        tempMMT = gameMMT;
+    }
+
+    if(gameMMB){
+        tempMMB = gameMMB;
+    }
+
     // Game Creation & Connect Slots
     gameMR = new GameMRScene(this);
     connect(gameMR, &GameMRScene::requestSceneChange, this, &GameWindow::handleSwitchScene);
 
     gameMM = new GameMMScene(this);
     connect(gameMM, &GameMMScene::requestSceneChange, this, &GameWindow::handleSwitchScene);
+
+    gameMMT = new GameMMTScene(this);
+    connect(gameMMT, &GameMMTScene::requestSceneChange, this, &GameWindow::handleSwitchScene);
+
+    gameMMB = new GameMMBScene(this);
+    connect(gameMMB, &GameMMBScene::requestSceneChange, this, &GameWindow::handleSwitchScene);
+
 
     switch(to){
     case sceneslist::gameMR:
@@ -74,6 +97,17 @@ void GameWindow::handleSwitchScene(sceneslist to){
         gameMM->timerEnabled = true;
         view->setScene(gameMM);
         break;
+    case sceneslist::gameMMT:
+        gameMMT->timerEnabled = true;
+        view->setScene(gameMMT);
+        break;
+    case sceneslist::wining:
+        view->setScene(win);
+        break;
+    case sceneslist::gameMMB:
+        gameMMB->timerEnabled = true;
+        view->setScene(gameMMB);
+        break;
     }
 
     // Delete Old Scene
@@ -82,6 +116,12 @@ void GameWindow::handleSwitchScene(sceneslist to){
     }
     if (tempMM){
         tempMM->deleteLater();
+    }
+    if (tempMMT){
+        tempMMT->deleteLater();
+    }
+    if (tempMMB){
+        tempMMB->deleteLater();
     }
 }
 

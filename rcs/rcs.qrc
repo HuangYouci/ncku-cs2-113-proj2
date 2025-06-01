@@ -25,5 +25,8 @@
         <file>data/brick/indestructible_brick_blue.png</file>
         <file>data/brick/floor.png</file>
         <file>data/brick/destructible_fixed_brick.png</file>
+        <file>data/maps/gameMM01.txt</file>
+        <file>data/maps/gameMM02.txt</file>
+        <file>data/maps/gameMM03.txt</file>
     </qresource>
 </RCC>

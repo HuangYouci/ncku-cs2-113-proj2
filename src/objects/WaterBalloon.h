@@ -15,6 +15,8 @@ public:
 
     int flyingX = 0;
     int flyingY = 0;
+
+    bool isOctupusWater = false;
 };
 
 #endif // WATERBALLOON_H

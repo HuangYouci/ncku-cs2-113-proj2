@@ -9,6 +9,8 @@
 #include <QTimer>         // Tick
 #include <QGraphicsTextItem>
 #include <QGraphicsSceneMouseEvent>
+#include <QQueue>
+#include <QPair>
 
 #include "src/core/enums.h"
 #include "src/objects/InBrick.h"
@@ -24,14 +26,15 @@ class GameMRScene : public QGraphicsScene
 {
     Q_OBJECT
 
+public:
+
     enum class direction {
         up,
+        dw,
         lf,
         rg,
-        dw,
     };
 
-public:
     GameMRScene(QObject *parent = nullptr);
     ~GameMRScene();
     bool timerEnabled = false;
@@ -50,7 +53,6 @@ private:
 
     // MAP BUILDER
     void setup();
-    QVector<QVector<QPointF>> mapPos;
     QVector<QVector<int>> mapObj;
 
     // PLAYER MANAGER
@@ -71,9 +73,9 @@ private:
     int initX = 0;
     int initY = 0;
     int life = 1;
-    void playerDie();
 
     void movingMaBrick(direction way, MaBrick *mb);
+    bool movingMaBrickByRobot(direction way, MaBrick *mb);
 
     // WATERBALLOON
     void puttingWaterballoon(int cellX, int cellY);
@@ -105,6 +107,11 @@ private:
     int rY;
     int initrX;
     int initrY;
+    int iprX = 0;
+    int iprY = 0;
+    void movingRobot(direction dir);
+    direction getDirectionToNearestZero(int map[9][11], int robotX, int robotY);
+    direction getDirectionToNearestPlayer(int map[9][11], int robotX, int robotY);
 
 private slots:
     void tick();

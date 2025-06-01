@@ -9,6 +9,9 @@
 #include "src/scenes/GameMRScene.h"
 #include "src/scenes/EndingScene.h"
 #include "src/scenes/GameMMScene.h"
+#include "src/scenes/GameMMTScene.h"
+#include "src/scenes/WiningScene.h"
+#include "src/scenes/GameMMBScene.h"
 
 // Core
 #include "src/core/enums.h"
@@ -38,6 +41,9 @@ private:
     GameMRScene *gameMR = nullptr;
     EndingScene *end = nullptr;
     GameMMScene *gameMM = nullptr;
+    GameMMTScene *gameMMT = nullptr;
+    WiningScene *win = nullptr;
+    GameMMBScene *gameMMB = nullptr;
 };
 
 #endif

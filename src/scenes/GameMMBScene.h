@@ -1,5 +1,5 @@
-#ifndef GameMMScene_H
-#define GameMMScene_H
+#ifndef GameMMBSCENE_H
+#define GameMMBSCENE_H
 
 #include <QGraphicsScene> // 場景建立
 #include <QObject>        // 連接槽
@@ -9,6 +9,8 @@
 #include <QTimer>         // Tick
 #include <QGraphicsTextItem>
 #include <QGraphicsSceneMouseEvent>
+#include <QQueue>
+#include <QPair>
 
 #include "src/core/enums.h"
 #include "src/objects/InBrick.h"
@@ -18,22 +20,23 @@
 #include "src/objects/WaterBalloon.h"
 #include "src/objects/WaterExplosion.h"
 #include "src/objects/DropItem.h"
-#include "src/objects/Monster.h"
+#include "src/objects/Boss.h"
 
-class GameMMScene : public QGraphicsScene
+class GameMMBScene : public QGraphicsScene
 {
     Q_OBJECT
 
+public:
+
     enum class direction {
         up,
+        dw,
         lf,
         rg,
-        dw,
     };
 
-public:
-    GameMMScene(QObject *parent = nullptr);
-    ~GameMMScene();
+    GameMMBScene(QObject *parent = nullptr);
+    ~GameMMBScene();
     bool timerEnabled = false;
 
 signals:
@@ -50,7 +53,6 @@ private:
 
     // MAP BUILDER
     void setup();
-    QVector<QVector<QPointF>> mapPos;
     QVector<QVector<int>> mapObj;
 
     // PLAYER MANAGER
@@ -71,8 +73,10 @@ private:
     int initX = 0;
     int initY = 0;
     int life = 3;
+    int bossLife = 10;
 
     void movingMaBrick(direction way, MaBrick *mb);
+    bool movingMaBrickByRobot(direction way, MaBrick *mb);
 
     // WATERBALLOON
     void puttingWaterballoon(int cellX, int cellY);
@@ -95,12 +99,24 @@ private:
     QGraphicsPixmapItem *uiPause;
     QGraphicsTextItem *uiPauseIndictator;
     QGraphicsTextItem *uiLife;
+    QGraphicsTextItem *uiBoss;
 
-    // MONSTER
-    void movingMonster(Monster *mn);
+    // ROBOT
+    QGraphicsTextItem *robotText;
+    int robotSteps = 0;
+    Boss *robot;
+    int rX;
+    int rY;
+    int initrX;
+    int initrY;
+    int iprX = 0;
+    int iprY = 0;
+    void movingRobot(direction dir);
+    direction getDirectionToNearestZero(int map[9][11], int robotX, int robotY);
+    direction getDirectionToNearestPlayer(int map[9][11], int robotX, int robotY);
 
 private slots:
     void tick();
 };
 
-#endif // GameMMScene_H
+#endif // GameMMBSCENE_H
