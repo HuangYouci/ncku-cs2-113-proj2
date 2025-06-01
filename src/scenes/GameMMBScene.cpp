@@ -385,6 +385,28 @@ void GameMMBScene::setup(){
         }
     }
 
+    // 建構雕像
+    if (true){
+        QGraphicsPixmapItem *pi = new QGraphicsPixmapItem(QPixmap(":/data/brick/statue_1.png"));
+        pi->setPos(-10, 290);
+        addItem(pi);
+    }
+    if (true){
+        QGraphicsPixmapItem *pi = new QGraphicsPixmapItem(QPixmap(":/data/brick/statue_1.png"));
+        pi->setPos(490, 290);
+        addItem(pi);
+    }
+    if (true){
+        QGraphicsPixmapItem *pi = new QGraphicsPixmapItem(QPixmap(":/data/brick/statue_2.png").scaled(50, 50));
+        pi->setPos(0, 0);
+        addItem(pi);
+    }
+    if (true){
+        QGraphicsPixmapItem *pi = new QGraphicsPixmapItem(QPixmap(":/data/brick/statue_2.png").scaled(50, 50));
+        pi->setPos(500, 0);
+        addItem(pi);
+    }
+
     // MARK: - 建構玩家
     qDebug() << "[GameMMBScene] 建立玩家";
     player = new Player;

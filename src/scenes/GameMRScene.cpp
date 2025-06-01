@@ -304,7 +304,7 @@ void GameMRScene::setup(){
 
     // 讀地圖檔案
     qDebug() << "[GameMRScene] 讀取地圖檔案";
-    QString filePath = ":/data/maps/gameMM01.txt";
+    QString filePath = ":/data/maps/testmap.txt";
     QFile file(filePath);
 
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {

@@ -1505,7 +1505,7 @@ void GameMMScene::movingMonster(Monster *mn){
 
     // 1. 邊界檢查
     if ((nextX > 500) || (nextX < 0) || (nextY > 400) || (nextY < -10)){
-        qDebug() << "[GameMMScene] Monster 無法走路，移動 (" << dX << "," << dY << ") 後為 (" << mn->pos().x() << "," << mn->pos().y() << ") 將超過邊界";
+        // qDebug() << "[GameMMScene] Monster 無法走路，移動 (" << dX << "," << dY << ") 後為 (" << mn->pos().x() << "," << mn->pos().y() << ") 將超過邊界";
 
         switch(mn->ds){
         case Monster::destDir::up:
@@ -1534,7 +1534,7 @@ void GameMMScene::movingMonster(Monster *mn){
 
         if (dynamic_cast<InBrick *>(item) || dynamic_cast<FxBrick *>(item) || dynamic_cast<MaBrick *>(item) || dynamic_cast<WaterBalloon *>(item)){
             // 2-1. InBrick、FxBrick 不能移動的方塊
-            qDebug() << "[GameMMScene] Monster 碰到 In, Fx 磚塊，無法移動到 (" << nextX << "," << nextY << ")";
+            // qDebug() << "[GameMMScene] Monster 碰到 In, Fx 磚塊，無法移動到 (" << nextX << "," << nextY << ")";
 
             // 2-2. 試著轉換方向（依照關卡測試）
             switch(mn->ds){
@@ -1560,10 +1560,10 @@ void GameMMScene::movingMonster(Monster *mn){
     if(mn->ipX+mn->ipY == 0){
         mn->ipX = dX;
         mn->ipY = dY;
-        qDebug() << "[GameMMScene] Monster 成功觸發走路，將 (" << mn->ipX << "," << mn->ipY << ") 加入待處理序列";
-        qDebug() << "[GameMMScene] Monster | (" << mn->ipX << "," << mn->ipY << ")";
+        // qDebug() << "[GameMMScene] Monster 成功觸發走路，將 (" << mn->ipX << "," << mn->ipY << ") 加入待處理序列";
+        // qDebug() << "[GameMMScene] Monster | (" << mn->ipX << "," << mn->ipY << ")";
     } else {
-        qDebug() << "[GameMMScene] 移動尚在冷卻期，忽略";
+        // qDebug() << "[GameMMScene] 移動尚在冷卻期，忽略";
         return;
     }
 }
