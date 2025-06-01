@@ -7,6 +7,8 @@
 // Scenes
 #include "src/scenes/TitleScene.h"
 #include "src/scenes/GameMRScene.h"
+#include "src/scenes/EndingScene.h"
+#include "src/scenes/GameMMScene.h"
 
 // Core
 #include "src/core/enums.h"
@@ -34,6 +36,8 @@ private:
     sceneslist currentScene = sceneslist::title;
     TitleScene *title = nullptr;
     GameMRScene *gameMR = nullptr;
+    EndingScene *end = nullptr;
+    GameMMScene *gameMM = nullptr;
 };
 
 #endif

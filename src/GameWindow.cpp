@@ -18,7 +18,7 @@ GameWindow::GameWindow(QWidget *parent) : QMainWindow(parent){
     view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
     setCentralWidget(view);
-    setWindowTitle("[Game] Crazy Arcade (Group 34, Introduction to Computer Science, 2025 Spring, NCKU EE)");
+    setWindowTitle("Crazy Arcade (Group 34, Introduction to Computer Science, 2025 Spring, NCKU EE)");
     setFixedSize(550, 550);
 
     // MARK: - Scene Manager
@@ -27,13 +27,12 @@ GameWindow::GameWindow(QWidget *parent) : QMainWindow(parent){
     connect(title, &TitleScene::requestSceneChange, this, &GameWindow::handleSwitchScene);
     connect(title, &TitleScene::requestQuitApplication, this, &GameWindow::handleQuitRequest);
 
-    // Game Creation & Connect Slots
-    gameMR = new GameMRScene(this);
-    connect(gameMR, &GameMRScene::requestSceneChange, this, &GameWindow::handleSwitchScene);
-
+    // GameEnd Creation & Connect Slots
+    end = new EndingScene(this);
+    connect(end, &EndingScene::requestSceneChange, this, &GameWindow::handleSwitchScene);
+    connect(end, &EndingScene::requestQuitApplication, this, &GameWindow::handleQuitRequest);
     // Switch Scene (Default)
     handleSwitchScene(sceneslist::title);
-//    handleSwitchScene(sceneslist::title); // For Test
 }
 
 GameWindow::~GameWindow() {
@@ -41,13 +40,48 @@ GameWindow::~GameWindow() {
 }
 
 void GameWindow::handleSwitchScene(sceneslist to){
+
+    GameMRScene *tempMR = nullptr;
+    GameMMScene *tempMM = nullptr;
+
+    if (gameMR){
+        tempMR = gameMR;
+    }
+
+    if(gameMM){
+        tempMM = gameMM;
+    }
+
+    // Game Creation & Connect Slots
+    gameMR = new GameMRScene(this);
+    connect(gameMR, &GameMRScene::requestSceneChange, this, &GameWindow::handleSwitchScene);
+
+    gameMM = new GameMMScene(this);
+    connect(gameMM, &GameMMScene::requestSceneChange, this, &GameWindow::handleSwitchScene);
+
     switch(to){
     case sceneslist::gameMR:
+        gameMR->timerEnabled = true;
         view->setScene(gameMR);
         break;
     case sceneslist::title:
         view->setScene(title);
         break;
+    case sceneslist::ending:
+        view->setScene(end);
+        break;
+    case sceneslist::gameMM:
+        gameMM->timerEnabled = true;
+        view->setScene(gameMM);
+        break;
+    }
+
+    // Delete Old Scene
+    if (tempMR){
+        tempMR->deleteLater();
+    }
+    if (tempMM){
+        tempMM->deleteLater();
     }
 }
 

@@ -1,4 +1,4 @@
-#include "src/scenes/GameMRScene.h"
+#include "src/scenes/GameMMScene.h"
 
 #include <QGraphicsPixmapItem>
 #include <QPixmap>
@@ -10,54 +10,54 @@
 #include <QList>             // 碰撞檢查
 #include <QGraphicsRectItem>
 
-GameMRScene::GameMRScene(QObject *parent)
+GameMMScene::GameMMScene(QObject *parent)
 {
-    qDebug() << "[GameMRScene] 已被構建";
+    qDebug() << "[GameMMScene] 已被構建";
     setup();
 }
 
-GameMRScene::~GameMRScene(){
-    qDebug() << "[GameMRScene] 已被解構";
+GameMMScene::~GameMMScene(){
+    qDebug() << "[GameMMScene] 已被解構";
 
     // 關閉計時器
     timer->stop();
 }
 
-void GameMRScene::keyPressEvent(QKeyEvent *event){
+void GameMMScene::keyPressEvent(QKeyEvent *event){
     qDebug() << "";
     switch(event->key()){
     case Qt::Key_Up:
-        qDebug() << "[GameMRScene] 按了 ↑";
+        qDebug() << "[GameMMScene] 按了 ↑";
         movingPlayer(direction::up);
         player->kup();
         break;
     case Qt::Key_Down:
-        qDebug() << "[GameMRScene] 按了 ↓";
+        qDebug() << "[GameMMScene] 按了 ↓";
         movingPlayer(direction::dw);
         player->kdw();
         break;
     case Qt::Key_Left:
-        qDebug() << "[GameMRScene] 按了 ←";
+        qDebug() << "[GameMMScene] 按了 ←";
         movingPlayer(direction::lf);
         player->klf();
         break;
     case Qt::Key_Right:
-        qDebug() << "[GameMRScene] 按了 →";
+        qDebug() << "[GameMMScene] 按了 →";
         movingPlayer(direction::rg);
         player->krg();
         break;
     case Qt::Key_Space:
-        qDebug() << "[GameMRScene] 按了 Space";
+        qDebug() << "[GameMMScene] 按了 Space";
         puttingWaterballoon(((pX+10)/50+1),((pY+10)/50+1));
         break;
     case Qt::Key_Shift:
-        qDebug() << "[GameMRScene] 按了 Shift";
+        qDebug() << "[GameMMScene] 按了 Shift";
         if(!itemNeedle){
-            qDebug() << "[GameMRScene] 沒有 needle，略過";
+            qDebug() << "[GameMMScene] 沒有 needle，略過";
             return;
         }
         if(isPlayerBlocked > 0){
-            qDebug() << "[GameMRScene] 成功逃脫";
+            qDebug() << "[GameMMScene] 成功逃脫";
             isPlayerBlocked = 0;
 
             QTransform transform;
@@ -91,42 +91,22 @@ void GameMRScene::keyPressEvent(QKeyEvent *event){
             }
         }
         break;
-
-
-        // 模擬機器人
-        case Qt::Key_W:
-            qDebug() << "[GameMRScene] 模擬機器人 按下 W 前";
-            robot->kup();
-            break;
-        case Qt::Key_A:
-            qDebug() << "[GameMRScene] 模擬機器人 按下 A 左";
-            robot->klf();
-            break;
-        case Qt::Key_S:
-            qDebug() << "[GameMRScene] 模擬機器人 按下 S 下";
-            robot->kdw();
-            break;
-        case Qt::Key_D:
-            qDebug() << "[GameMRScene] 模擬機器人 按下 D 右";
-            robot->krg();
-            break;
     }
-
 }
 
-void GameMRScene::mousePressEvent(QGraphicsSceneMouseEvent *event){
+void GameMMScene::mousePressEvent(QGraphicsSceneMouseEvent *event){
     QGraphicsItem *clickedItem = itemAt(event->scenePos(), QTransform());
     if (clickedItem == uiHome){
-        qDebug() << "[GameMRScene] uiHome Clicked.";
+        qDebug() << "[GameMMScene] uiHome Clicked.";
         requestSceneChange(sceneslist::title);
     }
     if (clickedItem == uiPause){
-        qDebug() << "[GameMRScene] uiPause Clicked";
+        qDebug() << "[GameMMScene] uiPause Clicked";
         uiPauseIndictator->setPlainText("暫停中");
         timerEnabled = false;
     }
     if (clickedItem == uiPauseIndictator){
-        qDebug() << "[GameMRScene] uiPauseIndictator Clicked";
+        qDebug() << "[GameMMScene] uiPauseIndictator Clicked";
         uiPauseIndictator->setPlainText("");
         timerEnabled = true;
     }
@@ -134,22 +114,22 @@ void GameMRScene::mousePressEvent(QGraphicsSceneMouseEvent *event){
     QGraphicsScene::mousePressEvent(event);
 }
 
-void GameMRScene::setup(){
+void GameMMScene::setup(){
     // 設定大小
     setSceneRect(0, 0, 550, 550);
 
     // MARK: - 設定 UI
-    qDebug() << "[GameMRScene] 設定 UI Menu";
+    qDebug() << "[GameMMScene] 設定 UI Menu";
     QGraphicsPixmapItem *menu = new QGraphicsPixmapItem(QPixmap(":/data/ui/ui.png").scaled(550, 100));
     menu->setPos(0, 450);
     addItem(menu);
 
-    qDebug() << "[GameMRScene] 正在建立顯示物品中心";
+    qDebug() << "[GameMMScene] 正在建立顯示物品中心";
     QGraphicsRectItem *br = new QGraphicsRectItem(300, 450, 250, 95);
     br->setBrush(Qt::blue);
     addItem(br);
 
-    qDebug() << "[GameMRScene] 正在建立 UI 主畫面與暫停";
+    qDebug() << "[GameMMScene] 正在建立 UI 主畫面與暫停";
     uiHome = new QGraphicsPixmapItem(QPixmap(":/data/ui/home.png"));
     uiHome->setPos(200, 500);
     addItem(uiHome);
@@ -162,28 +142,14 @@ void GameMRScene::setup(){
     uiPauseIndictator->setDefaultTextColor(Qt::white);
     addItem(uiPauseIndictator);
 
-    qDebug() << "[GameMRScene] 正在建立本模式禁用道具 以及 機器人部署 資訊";
-    {
-        QGraphicsTextItem *text = new QGraphicsTextItem("本模式禁用道具");
-        text->setFont(QFont("Arial", 15));
-        text->setDefaultTextColor(Qt::red);
-        text->setPos(180, 480);
-        addItem(text);
-    }
-    robotText = new QGraphicsTextItem("機器人思考中");
-    robotText->setFont(QFont("Arial",20));
-    robotText->setDefaultTextColor(Qt::white);
-    robotText->setPos(10, 450);
-    addItem(robotText);
-
-    qDebug() << "[GameMRScene] 正在建立剩餘命數";
+    qDebug() << "[GameMMScene] 正在建立剩餘命數";
     uiLife = new QGraphicsTextItem("1");
     uiLife->setFont(QFont("Arial", 40));
     uiLife->setPos(70, 490);
     uiLife->setDefaultTextColor(Qt::white);
     addItem(uiLife);
 
-    qDebug() << "[GameMRScene] 正在建立各種物體數量顯示";
+    qDebug() << "[GameMMScene] 正在建立各種物體數量顯示";
     {
         QGraphicsPixmapItem *pi = new QGraphicsPixmapItem();
         pi->setPixmap(QPixmap(":/data/item/extra_water_balloons.png").scaled(30, 30));
@@ -302,12 +268,12 @@ void GameMRScene::setup(){
     }
 
     // 讀地圖檔案
-    qDebug() << "[GameMRScene] 讀取地圖檔案";
+    qDebug() << "[GameMMScene] 讀取地圖檔案";
     QString filePath = ":/data/maps/testmap.txt";
     QFile file(filePath);
 
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        qDebug() << "[GameMRScene] 無法開啟檔案：" << filePath;
+        qDebug() << "[GameMMScene] 無法開啟檔案：" << filePath;
         return;
     }
 
@@ -326,7 +292,7 @@ void GameMRScene::setup(){
 
     file.close();
 
-    qDebug() << "[GameMRScene] mapObj:";
+    qDebug() << "[GameMMScene] mapObj:";
     for (const QVector<int>& row : mapObj) {
         QString line;
         for (int val : row) {
@@ -336,7 +302,7 @@ void GameMRScene::setup(){
     }
 
     // 建構地圖
-    qDebug() << "[GameMRScene] 建構地圖";
+    qDebug() << "[GameMMScene] 建構地圖";
     for (int row = 0; row < 9; ++row) {
         for (int col = 0; col < 11; ++col) {
             int val = mapObj[row][col];
@@ -380,7 +346,7 @@ void GameMRScene::setup(){
     }
 
     // MARK: - 建構玩家
-    qDebug() << "[GameMRScene] 建立玩家";
+    qDebug() << "[GameMMScene] 建立玩家";
     player = new Player;
     for (int row = 0; row < 9; ++row) {
         for (int col = 0; col < 11; ++col) {
@@ -392,7 +358,7 @@ void GameMRScene::setup(){
                 player->setPos(pX, pY);
                 initX = pX;
                 initY = pY;
-                qDebug() << "[GameMRScene] 玩家生成於 (" << row*50 << "," << col*50 << ")";
+                qDebug() << "[GameMMScene] 玩家生成於 (" << row*50 << "," << col*50 << ")";
                 break;
             }
         }
@@ -400,34 +366,14 @@ void GameMRScene::setup(){
     addItem(player);
     player->setZValue(100);
 
-    // MARK: - 建構機器人
-    qDebug() << "[GameMRScene] 建立機器人";
-    robot = new Robot;
-    for (int row = 0; row < 9; ++row) {
-        for (int col = 0; col < 11; ++col) {
-            int val = mapObj[row][col];
-            if (val == 5){
-                rX = col*50;
-                rY = row*50 - 6;
-                robot->setPos(rX, rY);
-                initrX = pX;
-                initrY = pY;
-                qDebug() << "[GameMRScene] 機器人生成於 (" << row*50 << "," << col*50 << ")";
-                break;
-            }
-        }
-    }
-    addItem(robot);
-    robot->setZValue(100);
-
     // MARK: - 開啟 Tick
-    qDebug() << "[GameMRScene] 建立 tick 計時器（0.01s）";
+    qDebug() << "[GameMMScene] 建立 tick 計時器（0.01s）";
     timer = new QTimer(this);
-    connect(timer, &QTimer::timeout, this, &GameMRScene::tick);
+    connect(timer, &QTimer::timeout, this, &GameMMScene::tick);
     timer->start(10);
 }
 
-void GameMRScene::movingPlayer(direction dir){
+void GameMMScene::movingPlayer(direction dir){
 
     // 如果在爆炸中 忽略
     if(isPlayerBlocked>0){
@@ -457,31 +403,31 @@ void GameMRScene::movingPlayer(direction dir){
 
     // 1. 邊界檢查
     if ((nextX > 500) || (nextX < 0) || (nextY > 400) || (nextY < -10)){
-        qDebug() << "[GameMRScene] Player 無法走路，移動 (" << dX << "," << dY << ") 後為 (" << pX << "," << pY << ") 將超過邊界";
+        qDebug() << "[GameMMScene] Player 無法走路，移動 (" << dX << "," << dY << ") 後為 (" << pX << "," << pY << ") 將超過邊界";
 
         // 1-1. 是否有太空走路
         if (moonTime > 0){
-            qDebug() << "[GameMRScene] 有 moonwalk";
+            qDebug() << "[GameMMScene] 有 moonwalk";
             if(nextX > 500){
-                qDebug() << "[GameMRScene] 邊界走到最左邊";
+                qDebug() << "[GameMMScene] 邊界走到最左邊";
                 pX = -50;
                 player->setPos(-50, pY);
                 ipX = 50;
             }
             if(nextX < 0){
-                qDebug() << "[GameMRScene] 邊界走到最左邊";
+                qDebug() << "[GameMMScene] 邊界走到最左邊";
                 pX = 550;
                 player->setPos(550, pY);
                 ipX = -50;
             }
             if(nextY > 400){
-                qDebug() << "[GameMRScene] 邊界走到最左邊";
+                qDebug() << "[GameMMScene] 邊界走到最左邊";
                 pY = -56;
                 player->setPos(pX, -56);
                 ipY = 50;
             }
             if(nextY < -10){
-                qDebug() << "[GameMRScene] 邊界走到最左邊";
+                qDebug() << "[GameMMScene] 邊界走到最左邊";
                 pY = 450;
                 player->setPos(pX, 450);
                 ipY = -50;
@@ -497,13 +443,13 @@ void GameMRScene::movingPlayer(direction dir){
         // 檢查有無碰撞到以下方塊，確認要阻止或進行功能
         if (dynamic_cast<InBrick *>(item) || dynamic_cast<FxBrick *>(item) ){
             // 2-1. InBrick、FxBrick 不能移動的方塊
-            qDebug() << "[GameMRScene] Player 碰到 In, Fx 磚塊，無法移動到 (" << nextX << "," << nextY << ")";
+            qDebug() << "[GameMMScene] Player 碰到 In, Fx 磚塊，無法移動到 (" << nextX << "," << nextY << ")";
             return;
         }
         if (MaBrick *mb = dynamic_cast<MaBrick *>(item)){
             // 前面只需檢查，現在需要將結果指標存到 MaBrick *mb 中
             // 2-2. MaBrick 可移動方塊，進行移動方塊判斷。但仍不能動
-            qDebug() << "[GameMRScene] Player 碰到 Ma 磚塊，無法移動到 (" << nextX << "," << nextY << ")";
+            qDebug() << "[GameMMScene] Player 碰到 Ma 磚塊，無法移動到 (" << nextX << "," << nextY << ")";
             if (dX > 0){
                 movingMaBrick(direction::rg, mb);
                 return;
@@ -520,7 +466,7 @@ void GameMRScene::movingPlayer(direction dir){
                 movingMaBrick(direction::up, mb);
                 return;
             }
-            qDebug() << "[GameMRScene] 未知的 MaBrick 移動方位";
+            qDebug() << "[GameMMScene] 未知的 MaBrick 移動方位";
             return;
         }
     }
@@ -529,19 +475,19 @@ void GameMRScene::movingPlayer(direction dir){
     if(ipX+ipY == 0){
         ipX = dX;
         ipY = dY;
-        qDebug() << "[GameMRScene] 玩家成功觸發走路，將 (" << ipX << "," << ipY << ") 加入待處理序列";
-        qDebug() << "[GameMRScene] Player | (" << ipX << "," << ipY << ")";
+        qDebug() << "[GameMMScene] 玩家成功觸發走路，將 (" << ipX << "," << ipY << ") 加入待處理序列";
+        qDebug() << "[GameMMScene] Player | (" << ipX << "," << ipY << ")";
     } else {
-        qDebug() << "[GameMRScene] 移動尚在冷卻期，忽略";
+        qDebug() << "[GameMMScene] 移動尚在冷卻期，忽略";
         return;
     }
 }
 
-void GameMRScene::movingMaBrick(direction way, MaBrick *mb){
+void GameMMScene::movingMaBrick(direction way, MaBrick *mb){
 
     // 0. 如果玩家還在走路，就不要推
     if (ipX + ipY > 0){
-        qDebug() << "[GameMRScene] 玩家仍在走路，跳過推動";
+        qDebug() << "[GameMMScene] 玩家仍在走路，跳過推動";
         return;
     }
 
@@ -570,11 +516,11 @@ void GameMRScene::movingMaBrick(direction way, MaBrick *mb){
     int nextX = pX + dX;
     int nextY = pY + dY;
 
-    qDebug() << "[GameMRScene] MaBrick 目前在 (" << pX << "," << pY << ")。嘗試將他走 (" << dX << "," << dY << ")";
+    qDebug() << "[GameMMScene] MaBrick 目前在 (" << pX << "," << pY << ")。嘗試將他走 (" << dX << "," << dY << ")";
 
     // 1. 邊界檢查
     if ((nextX > 500) || (nextX < 0) || (nextY > 400) || (nextY < 0)){
-        qDebug() << "[GameMRScene] MaBrick 無法移動，移動 (" << dX << "," << dY << ") 後為 (" << pX << "," << pY << ") 將超過邊界";
+        qDebug() << "[GameMMScene] MaBrick 無法移動，移動 (" << dX << "," << dY << ") 後為 (" << pX << "," << pY << ") 將超過邊界";
         return;
     }
 
@@ -585,7 +531,7 @@ void GameMRScene::movingMaBrick(direction way, MaBrick *mb){
         // MaBrick 移動的碰撞檢測
         if (dynamic_cast<InBrick *>(item) || dynamic_cast<FxBrick *>(item) || dynamic_cast<MaBrick *>(item)){
             // 2-1. InBrick、FxBrick、MaBrick 阻擋
-            qDebug() << "[GameMRScene] MaBrick 碰到 In, Fx, Ma 磚塊，無法移動到 (" << pX+dX << "," << pY+dY << ")";
+            qDebug() << "[GameMMScene] MaBrick 碰到 In, Fx, Ma 磚塊，無法移動到 (" << pX+dX << "," << pY+dY << ")";
             return;
         }
         // TODO: 未來可能需要判定其他物品
@@ -595,20 +541,20 @@ void GameMRScene::movingMaBrick(direction way, MaBrick *mb){
     if(mb->ipX + mb->ipY == 0){
         mb->ipX = dX;
         mb->ipY = dY;
-        qDebug() << "[GameMRScene] 成功處理 MaBrick 移動，移動 (" << mb->ipX << "," << mb->ipY << ") 已加入佇列";
+        qDebug() << "[GameMMScene] 成功處理 MaBrick 移動，移動 (" << mb->ipX << "," << mb->ipY << ") 已加入佇列";
     } else {
-        qDebug() << "[GameMRScene] 處理 MaBrick 失敗，因為仍有佇列";
+        qDebug() << "[GameMMScene] 處理 MaBrick 失敗，因為仍有佇列";
     }
 }
 
 // MARK: - WaterBalloon
-void GameMRScene::puttingWaterballoon(int cellX, int cellY){
+void GameMMScene::puttingWaterballoon(int cellX, int cellY){
     // 應檢查水球數量
     if (waterballCurCount >= waterballMaxCount){
-        qDebug() << "[GameMRScene] 目前場上 Player 水球已達最大值" << waterballCurCount << "/" << waterballMaxCount;
+        qDebug() << "[GameMMScene] 目前場上 Player 水球已達最大值" << waterballCurCount << "/" << waterballMaxCount;
         return;
     } else {
-        qDebug() << "[GameMRScene] 放置之前場上 Player 水球為" << waterballCurCount << "/" << waterballMaxCount;
+        qDebug() << "[GameMMScene] 放置之前場上 Player 水球為" << waterballCurCount << "/" << waterballMaxCount;
     }
 
     // 根據方塊的座標來檢查碰撞
@@ -617,7 +563,7 @@ void GameMRScene::puttingWaterballoon(int cellX, int cellY){
     for (QGraphicsItem *item : itemAtNext){
        // 放水球位置是否為空（不能有 InBrick、FxBrick、MaBrick、WaterBalloon)
        if (dynamic_cast<InBrick *>(item) || dynamic_cast<FxBrick *>(item) || dynamic_cast<MaBrick *>(item) || dynamic_cast<WaterBalloon *>(item)){
-           qDebug() << "[GameMRScene] 無法在 (" << cellX << "," << cellY << ") 放置水球，因為有物品阻擋";
+           qDebug() << "[GameMMScene] 無法在 (" << cellX << "," << cellY << ") 放置水球，因為有物品阻擋";
            return;
        }
     }
@@ -625,7 +571,7 @@ void GameMRScene::puttingWaterballoon(int cellX, int cellY){
     // 放置水球
     waterballCurCount++;
     WaterBalloon *waterballoon = new WaterBalloon();
-    qDebug() << "[GameMRScene] 已在 (" << cellX << "," << cellY << ") 放置水球，目前場上 Player 水球為" << waterballCurCount << "/" << waterballMaxCount;
+    qDebug() << "[GameMMScene] 已在 (" << cellX << "," << cellY << ") 放置水球，目前場上 Player 水球為" << waterballCurCount << "/" << waterballMaxCount;
     waterballoon->setPos((cellX-1)*50, (cellY-1)*50);
     addItem(waterballoon);
 
@@ -633,7 +579,7 @@ void GameMRScene::puttingWaterballoon(int cellX, int cellY){
     waterballoon->flyingY = 0;
 
     if(gloveTime > 0){
-        qDebug() << "[GameMRScene] 手套效果已套用！";
+        qDebug() << "[GameMMScene] 手套效果已套用！";
 
         switch(player->ws){
         case Player::walkingStatus::up01:
@@ -641,42 +587,42 @@ void GameMRScene::puttingWaterballoon(int cellX, int cellY){
         case Player::walkingStatus::up03:
         case Player::walkingStatus::up04:
             waterballoon->flyingY = -100;
-            qDebug() << "[GameMRScene] 手套 往上丟！";
+            qDebug() << "[GameMMScene] 手套 往上丟！";
             break;
         case Player::walkingStatus::dw01:
         case Player::walkingStatus::dw02:
         case Player::walkingStatus::dw03:
         case Player::walkingStatus::dw04:
             waterballoon->flyingY = 100;
-            qDebug() << "[GameMRScene] 手套 往下丟！";
+            qDebug() << "[GameMMScene] 手套 往下丟！";
             break;
         case Player::walkingStatus::lf01:
         case Player::walkingStatus::lf02:
         case Player::walkingStatus::lf03:
         case Player::walkingStatus::lf04:
             waterballoon->flyingX = -100;
-            qDebug() << "[GameMRScene] 手套 往左丟！";
+            qDebug() << "[GameMMScene] 手套 往左丟！";
             break;
         case Player::walkingStatus::rg01:
         case Player::walkingStatus::rg02:
         case Player::walkingStatus::rg03:
         case Player::walkingStatus::rg04:
             waterballoon->flyingX = 100;
-            qDebug() << "[GameMRScene] 手套 往右丟！";
+            qDebug() << "[GameMMScene] 手套 往右丟！";
             break;
         }
         gloveTime--;
     }
 }
 
-void GameMRScene::waterballoonExplosion(WaterBalloon *wb){
+void GameMMScene::waterballoonExplosion(WaterBalloon *wb){
     // 1. 場上水球減少
     waterballCurCount--;
-    qDebug() << "[GameMRScene] 有水球爆炸，場上 Player 水球剩餘" << waterballCurCount << "/" << waterballMaxCount;
+    qDebug() << "[GameMMScene] 有水球爆炸，場上 Player 水球剩餘" << waterballCurCount << "/" << waterballMaxCount;
 
     // 2. 紀錄爆炸座標
     int cellX = wb->pos().x()/50, cellY = wb->pos().y()/50;
-    qDebug() << "[GameMRScene] 該水球爆炸於 (" << cellX+1 << "," << cellY+1 << ")";
+    qDebug() << "[GameMMScene] 該水球爆炸於 (" << cellX+1 << "," << cellY+1 << ")";
 
     // 3. 正忠方位爆炸（放在正中間，無需檢測）
     WaterExplosion *we = new WaterExplosion(nullptr, WaterExplosion::WaterExplosionDirection::ce);
@@ -703,7 +649,7 @@ void GameMRScene::waterballoonExplosion(WaterBalloon *wb){
         putcount--;
         // 4-2. 邊界檢測
         if ( (pt.x()+1 > 11) || (pt.x()+1 < 0) || (pt.y()+1 > 9) || (pt.y()+1 < 0) ){
-            qDebug() << "[GameMRScene] 在 (" << cellX+1 << "," << cellY+1 << ") 的水球爆炸波超過邊界，不放置";
+            qDebug() << "[GameMMScene] 在 (" << cellX+1 << "," << cellY+1 << ") 的水球爆炸波超過邊界，不放置";
             continue;
         }
         // 4-3. 碰撞檢測，每筆獨立
@@ -712,12 +658,12 @@ void GameMRScene::waterballoonExplosion(WaterBalloon *wb){
         for (QGraphicsItem *item : itemAtNext){
            // 放水球位置是否為空（不能有 InBrick、FxBrick、MaBrick)
            if (dynamic_cast<InBrick *>(item) || dynamic_cast<FxBrick *>(item) || dynamic_cast<MaBrick *>(item)){
-               qDebug() << "[GameMRScene] 無法在 (" << pt.x()+1 << "," << pt.y()+1 << ") 放置水球爆炸波，因為有物品阻擋";
+               qDebug() << "[GameMMScene] 無法在 (" << pt.x()+1 << "," << pt.y()+1 << ") 放置水球爆炸波，因為有物品阻擋";
                passCol = false;
            }
            // 連鎖反應（偵測到 WaterBalloon 讓他也一起爆炸），免 Return
            if (WaterBalloon *wb = dynamic_cast<WaterBalloon *>(item)){
-               qDebug() << "[GameMRScene] 在 (" << pt.x()+1 << "," << pt.y()+1 << ") 發現其餘水球，迫使他爆炸";
+               qDebug() << "[GameMMScene] 在 (" << pt.x()+1 << "," << pt.y()+1 << ") 發現其餘水球，迫使他爆炸";
                wb->boomgatime = 30;
            }
         }
@@ -727,7 +673,7 @@ void GameMRScene::waterballoonExplosion(WaterBalloon *wb){
             QList<QGraphicsItem *> prevList;
             switch(putcount%4){
             case 3: //left
-                qDebug() << "[GameMRScene] 左爆炸已被禁止";
+                qDebug() << "[GameMMScene] 左爆炸已被禁止";
                 passCollf = false;
                 // 要偵測上一個 把它變成頭
                 prevRect = QRect(pt.x()*50 + 50, pt.y()*50, 50, 50);
@@ -741,7 +687,7 @@ void GameMRScene::waterballoonExplosion(WaterBalloon *wb){
                 }
                 break;
             case 2: // right
-                qDebug() << "[GameMRScene] 右爆炸已被禁止";
+                qDebug() << "[GameMMScene] 右爆炸已被禁止";
                 passColrg = false;
                 prevRect = QRect(pt.x()*50 - 50, pt.y()*50, 50, 50);
                 prevList = items(prevRect);
@@ -754,7 +700,7 @@ void GameMRScene::waterballoonExplosion(WaterBalloon *wb){
                 }
                 break;
             case 1: // up
-                qDebug() << "[GameMRScene] 上爆炸已被禁止";
+                qDebug() << "[GameMMScene] 上爆炸已被禁止";
                 passColup = false;
                 prevRect = QRect(pt.x()*50, pt.y()*50 + 50, 50, 50);
                 prevList = items(prevRect);
@@ -767,7 +713,7 @@ void GameMRScene::waterballoonExplosion(WaterBalloon *wb){
                 }
                 break;
             case 0: //down
-                qDebug() << "[GameMRScene] 下爆炸已被禁止";
+                qDebug() << "[GameMMScene] 下爆炸已被禁止";
                 passColdw = false;
                 prevRect = QRect(pt.x()*50, pt.y()*50 - 50, 50, 50);
                 prevList = items(prevRect);
@@ -787,76 +733,76 @@ void GameMRScene::waterballoonExplosion(WaterBalloon *wb){
         switch(putcount%4){
         case 3: // 左
             if(!passCollf){
-                qDebug() << "[GameMRScene] 在 (" << pt.x()+1 << "," << pt.y()+1 << ") 的水球雖可放置，但該方向已被阻擋，故跳過 LF";
+                qDebug() << "[GameMMScene] 在 (" << pt.x()+1 << "," << pt.y()+1 << ") 的水球雖可放置，但該方向已被阻擋，故跳過 LF";
                 continue;
             }
             if(putcount == 3 ){
                 // head
                 WaterExplosion *we = new WaterExplosion(nullptr, WaterExplosion::WaterExplosionDirection::lfh);
-                qDebug() << "[GameMRScene] 已放置水球爆炸於 (" << pt.x()+1 << "," << pt.y() +1 << ") LFH";
+                qDebug() << "[GameMMScene] 已放置水球爆炸於 (" << pt.x()+1 << "," << pt.y() +1 << ") LFH";
                 we->setPos(pt.x()*50, pt.y()*50);
                 addItem(we);
                 continue;
             } else {
                 WaterExplosion *we = new WaterExplosion(nullptr, WaterExplosion::WaterExplosionDirection::lf);
-                qDebug() << "[GameMRScene] 已放置水球爆炸於 (" << pt.x()+1 << "," << pt.y() +1 << ") LF";
+                qDebug() << "[GameMMScene] 已放置水球爆炸於 (" << pt.x()+1 << "," << pt.y() +1 << ") LF";
                 we->setPos(pt.x()*50, pt.y()*50);
                 addItem(we);
                 continue;
             }
         case 2: // 右
             if(!passColrg){
-                qDebug() << "[GameMRScene] 在 (" << pt.x()+1 << "," << pt.y()+1 << ") 的水球雖可放置，但該方向已被阻擋，故跳過 RG";
+                qDebug() << "[GameMMScene] 在 (" << pt.x()+1 << "," << pt.y()+1 << ") 的水球雖可放置，但該方向已被阻擋，故跳過 RG";
                 continue;
             }
             if(putcount == 2 ){
                 // head
                 WaterExplosion *we = new WaterExplosion(nullptr, WaterExplosion::WaterExplosionDirection::rgh);
-                qDebug() << "[GameMRScene] 已放置水球爆炸於 (" << pt.x()+1 << "," << pt.y() +1 << ") RGH";
+                qDebug() << "[GameMMScene] 已放置水球爆炸於 (" << pt.x()+1 << "," << pt.y() +1 << ") RGH";
                 we->setPos(pt.x()*50, pt.y()*50);
                 addItem(we);
                 continue;
             } else {
                 WaterExplosion *we = new WaterExplosion(nullptr, WaterExplosion::WaterExplosionDirection::rg);
-                qDebug() << "[GameMRScene] 已放置水球爆炸於 (" << pt.x()+1 << "," << pt.y() +1 << ") RG";
+                qDebug() << "[GameMMScene] 已放置水球爆炸於 (" << pt.x()+1 << "," << pt.y() +1 << ") RG";
                 we->setPos(pt.x()*50, pt.y()*50);
                 addItem(we);
                 continue;
             }
         case 1: // 上
             if(!passColup){
-                qDebug() << "[GameMRScene] 在 (" << pt.x()+1 << "," << pt.y()+1 << ") 的水球雖可放置，但該方向已被阻擋，故跳過 UP";
+                qDebug() << "[GameMMScene] 在 (" << pt.x()+1 << "," << pt.y()+1 << ") 的水球雖可放置，但該方向已被阻擋，故跳過 UP";
                 continue;
             }
             if(putcount == 1 ){
                 // head
                 WaterExplosion *we = new WaterExplosion(nullptr, WaterExplosion::WaterExplosionDirection::uph);
-                qDebug() << "[GameMRScene] 已放置水球爆炸於 (" << pt.x()+1 << "," << pt.y() +1 << ") UPH";
+                qDebug() << "[GameMMScene] 已放置水球爆炸於 (" << pt.x()+1 << "," << pt.y() +1 << ") UPH";
                 we->setPos(pt.x()*50, pt.y()*50);
                 addItem(we);
                 continue;
             } else {
                 WaterExplosion *we = new WaterExplosion(nullptr, WaterExplosion::WaterExplosionDirection::up);
-                qDebug() << "[GameMRScene] 已放置水球爆炸於 (" << pt.x()+1 << "," << pt.y() +1 << ") UP";
+                qDebug() << "[GameMMScene] 已放置水球爆炸於 (" << pt.x()+1 << "," << pt.y() +1 << ") UP";
                 we->setPos(pt.x()*50, pt.y()*50);
                 addItem(we);
                 continue;
             }
         case 0: // 下
             if(!passColdw){
-                qDebug() << "[GameMRScene] 在 (" << pt.x()+1 << "," << pt.y()+1 << ") 的水球雖可放置，但該方向已被阻擋，故跳過 DW";
+                qDebug() << "[GameMMScene] 在 (" << pt.x()+1 << "," << pt.y()+1 << ") 的水球雖可放置，但該方向已被阻擋，故跳過 DW";
                 continue;
             }
             if(putcount == 0 ){
                 // head
                 WaterExplosion *we = new WaterExplosion(nullptr, WaterExplosion::WaterExplosionDirection::dwh);
-                qDebug() << "[GameMRScene] 已放置水球爆炸於 (" << pt.x()+1 << "," << pt.y() +1 << ") DWH";
+                qDebug() << "[GameMMScene] 已放置水球爆炸於 (" << pt.x()+1 << "," << pt.y() +1 << ") DWH";
                 we->setPos(pt.x()*50, pt.y()*50);
                 addItem(we);
                 continue;
             } else {
                 WaterExplosion *we = new WaterExplosion(nullptr, WaterExplosion::WaterExplosionDirection::dw);
-                qDebug() << "[GameMRScene] 已放置水球爆炸於 (" << pt.x()+1 << "," << pt.y() +1 << ") DW";
+                qDebug() << "[GameMMScene] 已放置水球爆炸於 (" << pt.x()+1 << "," << pt.y() +1 << ") DW";
                 we->setPos(pt.x()*50, pt.y()*50);
                 addItem(we);
                 continue;
@@ -918,11 +864,11 @@ void GameMRScene::waterballoonExplosion(WaterBalloon *wb){
                     if(MaBrick *ma = dynamic_cast<MaBrick*>(item)){
                         generateItem(ma->pos().x(), ma->pos().y());
                         ma->setPos(-100, -100);
-                        qDebug() << "[GameMRScene] MaBrick 已被移動至 (-100, -100)";
+                        qDebug() << "[GameMMScene] MaBrick 已被移動至 (-100, -100)";
                     } else if (FxBrick *fb = dynamic_cast<FxBrick*>(item)){
                         generateItem(fb->pos().x(), fb->pos().y());
                         fb->setPos(-100, -100);
-                        qDebug() << "[GameMRScene] FxBrick 已被移動至 (-100, -100)";
+                        qDebug() << "[GameMMScene] FxBrick 已被移動至 (-100, -100)";
                     }
                 }
             }
@@ -991,11 +937,11 @@ void GameMRScene::waterballoonExplosion(WaterBalloon *wb){
                 for (QGraphicsItem *item : itemAtNext) {
                     if(DropItem *di = dynamic_cast<DropItem*>(item)){
                         di->setPos(-100, -100);
-                        qDebug() << "[GameMRScene] DropItem 已被移動至 (-100, -100)";
+                        qDebug() << "[GameMMScene] DropItem 已被移動至 (-100, -100)";
                     }
                     if(Player *pl = dynamic_cast<Player *>(item)){
                         if(itemTurtle){
-                            qDebug() << "[GameMRScene] 烏龜抵擋傷害";
+                            qDebug() << "[GameMMScene] 烏龜抵擋傷害";
                             player->turtleEnabled = false;
                             itemTurtle = false;
 
@@ -1030,7 +976,7 @@ void GameMRScene::waterballoonExplosion(WaterBalloon *wb){
                             }
                         }else{
                             isPlayerBlocked = 300;
-                            qDebug() << "[GameMRScene] 玩家已被水球炸到，倒數三秒爆炸";
+                            qDebug() << "[GameMMScene] 玩家已被水球炸到，倒數三秒爆炸";
                         }
                     }
                 }
@@ -1040,40 +986,36 @@ void GameMRScene::waterballoonExplosion(WaterBalloon *wb){
     delete(wb);
 }
 
-void GameMRScene::generateItem(int x, int y){
+void GameMMScene::generateItem(int x, int y){
     DropItem *di;
-    // This Mode Disabled Item
-    qDebug() << "[GameMRScene] 本模式禁用道具";
-    return;
-    //
     switch(QRandomGenerator::global()->bounded(7)){
     case 6:
         di = new DropItem(nullptr, DropItem::DropItemType::moonwalk);
-        qDebug() << "[GameMRScene] 生成「月亮鞋」！";
+        qDebug() << "[GameMMScene] 生成「月亮鞋」！";
         break;
     case 5:
         di = new DropItem(nullptr, DropItem::DropItemType::needle);
-        qDebug() << "[GameMRScene] 生成「針」！";
+        qDebug() << "[GameMMScene] 生成「針」！";
         break;
     case 4:
         di = new DropItem(nullptr, DropItem::DropItemType::glove);
-        qDebug() << "[GameMRScene] 生成「手套」！";
+        qDebug() << "[GameMMScene] 生成「手套」！";
         break;
     case 3:
         di = new DropItem(nullptr, DropItem::DropItemType::power_potion);
-        qDebug() << "[GameMRScene] 生成「藥水」！";
+        qDebug() << "[GameMMScene] 生成「藥水」！";
         break;
     case 2:
         di = new DropItem(nullptr, DropItem::DropItemType::speed_shoes);
-        qDebug() << "[GameMRScene] 生成「加速」！";
+        qDebug() << "[GameMMScene] 生成「加速」！";
         break;
     case 1:
         di = new DropItem(nullptr, DropItem::DropItemType::turtle);
-        qDebug() << "[GameMRScene] 生成「烏龜」！";
+        qDebug() << "[GameMMScene] 生成「烏龜」！";
         break;
     case 0:
         di = new DropItem(nullptr, DropItem::DropItemType::waterballoon);
-        qDebug() << "[GameMRScene] 生成「水球」！";
+        qDebug() << "[GameMMScene] 生成「水球」！";
         break;
     }
     addItem(di);
@@ -1081,7 +1023,7 @@ void GameMRScene::generateItem(int x, int y){
 }
 
 // MARK: - Tick
-void GameMRScene::tick() {
+void GameMMScene::tick() {
     // 每 0.01 秒觸發一次
     if (!timerEnabled) {
         return;
@@ -1110,8 +1052,8 @@ void GameMRScene::tick() {
             player->kup();
         }
         if (ipX+ipY == 0){
-            qDebug() << "[GameMRScene] Player 成功走路並走到 (" << pX << "," << pY << ")";
-            qDebug() << "[GameMRScene] 目前 Player 所屬 Cell (" << ((pX+10)/50+1) << "," << ((pY+10)/50+1) << ")";
+            qDebug() << "[GameMMScene] Player 成功走路並走到 (" << pX << "," << pY << ")";
+            qDebug() << "[GameMMScene] 目前 Player 所屬 Cell (" << ((pX+10)/50+1) << "," << ((pY+10)/50+1) << ")";
         }
         player->setPos(pX,pY);
     }
@@ -1134,8 +1076,8 @@ void GameMRScene::tick() {
                 ipY++;
             }
             if (ipX+ipY == 0){
-                qDebug() << "[GameMRScene] Player 成功走路並走到 (" << pX << "," << pY << ")";
-                qDebug() << "[GameMRScene] 目前 Player 所屬 Cell (" << ((pX+10)/50+1) << "," << ((pY+10)/50+1) << ")";
+                qDebug() << "[GameMMScene] Player 成功走路並走到 (" << pX << "," << pY << ")";
+                qDebug() << "[GameMMScene] 目前 Player 所屬 Cell (" << ((pX+10)/50+1) << "," << ((pY+10)/50+1) << ")";
             }
             player->setPos(pX,pY);
         }
@@ -1147,7 +1089,7 @@ void GameMRScene::tick() {
         if (MaBrick* mb = dynamic_cast<MaBrick*>(item)){
             if((mb->ipX+mb->ipY)!=0){
                 // 2-1-1. 處理 MaBrick 移動事件
-                // qDebug() << "[GameMRScene] Tick 正在處理 MaBrick 移動，剩餘 (" << mb->ipX << "," << mb->ipY << ")";
+                // qDebug() << "[GameMMScene] Tick 正在處理 MaBrick 移動，剩餘 (" << mb->ipX << "," << mb->ipY << ")";
                 if(mb->ipX > 0){
                     mb->setPos(mb->pos().x()+1,mb->pos().y());
                     mb->ipX--;
@@ -1163,7 +1105,7 @@ void GameMRScene::tick() {
                     mb->ipY++;
                 }
                 if (mb->ipX + mb->ipY == 0){
-                    qDebug() << "[GameMRScene] MaBrick 成功移動到 (" << mb->pos().x() << "," << mb->pos().y() << ")";
+                    qDebug() << "[GameMMScene] MaBrick 成功移動到 (" << mb->pos().x() << "," << mb->pos().y() << ")";
                 }
             }
             continue;
@@ -1208,30 +1150,30 @@ void GameMRScene::tick() {
 
             // 偵測手套（有無丟到邊界）
             if(wb->pos().x() > 500){
-                qDebug() << "[GameMRScene] 丟出到右邊界，讓他回去";
+                qDebug() << "[GameMMScene] 丟出到右邊界，讓他回去";
                 wb->flyingX = -50;
             }
             if(wb->pos().x() < 0){
-                qDebug() << "[GameMRScene] 丟出到右邊界，讓他回去";
+                qDebug() << "[GameMMScene] 丟出到右邊界，讓他回去";
                 wb->flyingX = 50;
             }
             if(wb->pos().y() > 450){
-                qDebug() << "[GameMRScene] 丟出到下邊界，讓他回去";
+                qDebug() << "[GameMMScene] 丟出到下邊界，讓他回去";
                 wb->flyingY = -50;
             }
             if(wb->pos().y() < 0){
-                qDebug() << "[GameMRScene] 丟出到上邊界，讓他回去";
+                qDebug() << "[GameMMScene] 丟出到上邊界，讓他回去";
                 wb->flyingY = 50;
             }
 
             // 檢測停止時有無碰到物品，有的話再往該方向一格
             if(abs(wb->flyingX + wb->flyingY) == 1){
-                qDebug() << "[GameMRScene] 炸彈著地偵測中";
+                qDebug() << "[GameMMScene] 炸彈著地偵測中";
                 QRectF wbRect(wb->pos().x()+10, wb->pos().y()+10, 10, 10);
                 QList<QGraphicsItem*> wbItems = items(wbRect);
                 for(QGraphicsItem *item : wbItems){
                     if (dynamic_cast<InBrick *>(item) || dynamic_cast<MaBrick *>(item) || dynamic_cast<FxBrick *>(item)){
-                        qDebug() << "[GameMRScene] 水球著地位碰到方塊";
+                        qDebug() << "[GameMMScene] 水球著地位碰到方塊";
                         if(wb->flyingX > 0){
                             wb->flyingX = 50;
                         } else if (wb->flyingX < 0){
@@ -1282,14 +1224,14 @@ void GameMRScene::tick() {
             QList<QGraphicsItem*> touchedItems = items(nextRect);
             for(QGraphicsItem *tItem : touchedItems){
                 if(dynamic_cast<Player*>(tItem)){
-                    qDebug() << "[GameMRScene] 物品碰到玩家";
+                    qDebug() << "[GameMMScene] 物品碰到玩家";
                     switch(di->type){
                     case DropItem::DropItemType::waterballoon:
                         waterballMaxCount++;
                         if(waterballMaxCount > 5){
                             waterballMaxCount = 5;
                         }
-                        qDebug() << "[GameMRScene] 水球++，目前有" << waterballMaxCount;
+                        qDebug() << "[GameMMScene] 水球++，目前有" << waterballMaxCount;
                         break;
                     case DropItem::DropItemType::glove:
                         gloveTime = 3;
@@ -1299,15 +1241,15 @@ void GameMRScene::tick() {
                         if(waterballPower > 5){
                             waterballPower = 5;
                         }
-                        qDebug() << "[GameMRScene] 威力++，目前有" << waterballPower;
+                        qDebug() << "[GameMMScene] 威力++，目前有" << waterballPower;
                         break;
                     case DropItem::DropItemType::speed_shoes:
                         itemSpeed = true;
-                        qDebug() << "[GameMRScene] 獲得加速";
+                        qDebug() << "[GameMMScene] 獲得加速";
                         break;
                     case DropItem::DropItemType::turtle:
                         itemTurtle = true;
-                        qDebug() << "[GameMRScene] 獲得烏龜";
+                        qDebug() << "[GameMMScene] 獲得烏龜";
                         player->turtleEnabled = true;
                         break;
                     case DropItem::DropItemType::moonwalk:
@@ -1317,7 +1259,7 @@ void GameMRScene::tick() {
                         itemNeedle = true;
                         break;
                     }
-                    qDebug() << "[GameMRScene] 道具再見！（移動到陌生地方）";
+                    qDebug() << "[GameMMScene] 道具再見！（移動到陌生地方）";
                     di->setPos(-100, -100);
                 }
             }
@@ -1404,7 +1346,7 @@ void GameMRScene::tick() {
 }
 
 // MARK: - ITEM
-void GameMRScene::updateTextInfo(){
+void GameMMScene::updateTextInfo(){
     textWater->setPlainText(QString("%1").arg(waterballMaxCount));
     textPower->setPlainText(QString("%1").arg(waterballPower));
     uiLife->setPlainText(QString("%1").arg(life));
@@ -1432,11 +1374,5 @@ void GameMRScene::updateTextInfo(){
         textMoon->setPlainText(QString("%1.%2s").arg(moonTime/100).arg(moonTime%100));
     } else {
         textMoon->setPlainText("無");
-    }
-
-
-    // Robot
-    if(timeSec > 500){
-        robotText->setPlainText(QString("機器人：%1 步").arg(robotSteps));
     }
 }

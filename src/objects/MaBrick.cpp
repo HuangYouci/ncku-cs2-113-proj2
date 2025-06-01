@@ -7,5 +7,5 @@ MaBrick::MaBrick(const QPixmap &pixmap, QGraphicsItem *parent) : QGraphicsPixmap
 }
 
 MaBrick::~MaBrick(){
-    qDebug() << "[MaBrick] 被刪除";
+//    qDebug() << "[MaBrick] 被刪除";
 }

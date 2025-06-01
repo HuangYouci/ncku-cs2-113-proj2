@@ -18,7 +18,8 @@ public:
     enum class Action {
         StartG1,
         StartG2,
-        QuitGame
+        QuitGame,
+        Title
     };
 
     ClickableButton(const QString &text,

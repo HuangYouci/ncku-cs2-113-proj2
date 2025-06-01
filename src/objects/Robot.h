@@ -1,12 +1,11 @@
-#ifndef PLAYER_H
-#define PLAYER_H
+#ifndef ROBOT_H
+#define ROBOT_H
 
 #include <QGraphicsPixmapItem>
 #include <QPixmap>
 
-class Player : public QGraphicsPixmapItem
+class Robot : public QGraphicsPixmapItem
 {
-
 public:
 
     enum class walkingStatus {
@@ -28,21 +27,19 @@ public:
         rg04
     };
 
-
-    Player();
-
     void kup();
     void kdw();
     void klf();
     void krg();
 
-    bool turtleEnabled = false;
     walkingStatus ws;
     bool isBlocked = false;
 
+    Robot();
+
+
 private:
     QPixmap fullimage;
-    QGraphicsPixmapItem *overlayItem;
 };
 
-#endif // PLAYER_H
+#endif // ROBOT_H

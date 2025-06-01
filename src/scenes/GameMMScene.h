@@ -1,5 +1,5 @@
-#ifndef GAMEMRSCENE_H
-#define GAMEMRSCENE_H
+#ifndef GameMMScene_H
+#define GameMMScene_H
 
 #include <QGraphicsScene> // 場景建立
 #include <QObject>        // 連接槽
@@ -18,9 +18,8 @@
 #include "src/objects/WaterBalloon.h"
 #include "src/objects/WaterExplosion.h"
 #include "src/objects/DropItem.h"
-#include "src/objects/Robot.h"
 
-class GameMRScene : public QGraphicsScene
+class GameMMScene : public QGraphicsScene
 {
     Q_OBJECT
 
@@ -32,8 +31,8 @@ class GameMRScene : public QGraphicsScene
     };
 
 public:
-    GameMRScene(QObject *parent = nullptr);
-    ~GameMRScene();
+    GameMMScene(QObject *parent = nullptr);
+    ~GameMMScene();
     bool timerEnabled = false;
 
 signals:
@@ -97,17 +96,8 @@ private:
     QGraphicsTextItem *uiPauseIndictator;
     QGraphicsTextItem *uiLife;
 
-    // ROBOT
-    QGraphicsTextItem *robotText;
-    int robotSteps = 0;
-    Robot *robot;
-    int rX;
-    int rY;
-    int initrX;
-    int initrY;
-
 private slots:
     void tick();
 };
 
-#endif // GAMEMRSCENE_H
+#endif // GameMMScene_H
