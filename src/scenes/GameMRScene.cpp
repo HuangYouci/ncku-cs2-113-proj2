@@ -622,6 +622,7 @@ void GameMRScene::movingRobot(direction dir){
     if(putBombAfter){
         qDebug() << "[Robot] 放下水球！";
         waterballCurCount--;
+        robotSteps--; // 機器人放水球不算步數
         puttingWaterballoon(((rX+10)/50+1),((rY+10)/50+1));
         return;
     }
@@ -1789,7 +1790,7 @@ void GameMRScene::tick() {
                     qDebug() << "[Robot] 要放炸彈，以炸死左邊的玩家";
                     waterballCurCount--;
                     puttingWaterballoon(((rX+10)/50+1),((rY+10)/50+1));
-                    robotSteps++;
+                    // robotSteps++;
                     robotactioned = true;
                 }
             }
@@ -1798,7 +1799,7 @@ void GameMRScene::tick() {
                     qDebug() << "[Robot] 要放炸彈，以炸死右邊的玩家";
                     waterballCurCount--;
                     puttingWaterballoon(((rX+10)/50+1),((rY+10)/50+1));
-                    robotSteps++;
+                    // robotSteps++;
                     robotactioned = true;
                 }
             }
@@ -1807,7 +1808,7 @@ void GameMRScene::tick() {
                     qDebug() << "[Robot] 要放炸彈，以炸死上邊的玩家";
                     waterballCurCount--;
                     puttingWaterballoon(((rX+10)/50+1),((rY+10)/50+1));
-                    robotSteps++;
+                    // robotSteps++;
                     robotactioned = true;
                 }
             }
@@ -1816,7 +1817,7 @@ void GameMRScene::tick() {
                     qDebug() << "[Robot] 要放炸彈，以炸死下邊的玩家";
                     waterballCurCount--;
                     puttingWaterballoon(((rX+10)/50+1),((rY+10)/50+1));
-                    robotSteps++;
+                    // robotSteps++;
                     robotactioned = true;
                 }
             }
