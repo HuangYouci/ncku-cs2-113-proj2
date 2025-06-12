@@ -1610,7 +1610,7 @@ void GameMRScene::tick() {
         player->isBlocked = false;
     }
 
-    // 6. 每一秒 且機器人不在走路時 讓機器人思考（本項為機器人思考）
+    // 6. 每兩秒 且機器人不在走路時 讓機器人思考（本項為機器人思考）
     if((timeSec%100==0) && (iprX+iprY == 0) &&(timeSec > 500)){
         int mapNow[9][11] = {0};
         int robotCellX = 0;
@@ -1676,6 +1676,7 @@ void GameMRScene::tick() {
         }
 
         // 6-2. 畫出地圖
+        bool haveBoomMap = false;
         if (true){
             qDebug() << "[GameMRScene] Now Map:";
             for(int i = 0 ; i < 9 ; i++){
@@ -1683,6 +1684,7 @@ void GameMRScene::tick() {
                 for(int j = 0 ; j < 11 ; j++){
                     temp += QString::number(mapNow[i][j]);
                     temp += " ";
+                    if (mapNow[i][j] == 6) { haveBoomMap = true; }
                 }
                 qDebug().noquote() << temp;
             }
@@ -1824,7 +1826,7 @@ void GameMRScene::tick() {
         }
 
         // 6-4. 機器人判斷：無炸彈，找玩家
-        if(!robotactioned){
+        if(!robotactioned && !haveBoomMap){
             robotSteps++;
             switch(getDirectionToNearestPlayer(mapNow, robotCellX, robotCellY)){
             case direction::up:
