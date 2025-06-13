@@ -757,6 +757,7 @@ bool GameMRScene::movingMaBrickByRobot(direction way, MaBrick *mb){
         mb->ipX = dX;
         mb->ipY = dY;
         qDebug() << "[GameMRScene] 成功處理 MaBrick 移動，移動 (" << mb->ipX << "," << mb->ipY << ") 已加入佇列";
+        robotSteps--;
         return true;
     } else {
         qDebug() << "[GameMRScene] 處理 MaBrick 失敗，因為仍有佇列";
